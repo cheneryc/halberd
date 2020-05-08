@@ -3,6 +3,9 @@ project(halberd_lexer)
 set(INCLUDE include)
 
 set(HEADER include/halberd/lexer.h
+           include/halberd/state_index.h
+           include/halberd/state_machine.h
+           include/halberd/state_machine_array.h
            include/halberd/symbol_set.h
            include/halberd/symbol_set_array.h
            include/halberd/symbol_set_operators.h
