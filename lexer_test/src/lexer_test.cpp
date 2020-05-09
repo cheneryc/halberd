@@ -1,20 +1,131 @@
 #include <halberd/lexer.h>
 
+#include <halberd/state_index.h>
+#include <halberd/state_machine_array.h>
+
 #include <gtest/gtest.h>
 
+#include <algorithm> // std::binary_search
 
-using namespace halberd;
 
-TEST(lexer, lexer_status_true)
+namespace
 {
-    const bool status = lexer::get_status();
+    namespace ns = halberd::lexer;
 
-    ASSERT_EQ(true, status);
+    template<typename TSym>
+    constexpr bool try_transition(const ns::state_transition_view<TSym>& stv, TSym sym)
+    {
+        //TODO: may need to implement binary_search as std version not guaranteed constepxr until C++20
+        return std::binary_search(
+            stv.begin(),
+            stv.end(),
+            sym);
+    }
+
+    template<typename TSym>
+    constexpr bool try_transition(const ns::state_machine_view<TSym>& smv, TSym sym, size_t& idx_state)
+    {
+        if (ns::state_index_invalid == idx_state)
+        {
+            throw std::exception(); //TODO: don't use exceptions here so the function can be noexcept?
+        }
+
+        const auto& sv = smv[idx_state];
+
+        auto it_trans = sv.begin();
+        const auto it_end = sv.end();
+
+        while ((it_trans != it_end) && !::try_transition(*it_trans, sym))
+        {
+            ++it_trans;
+        }
+
+        if (it_trans != it_end)
+        {
+            idx_state = it_trans->idx_to;
+        }
+        else
+        {
+            idx_state = ns::state_index_invalid;
+        }
+
+        return idx_state != ns::state_index_invalid;
+    }
+
+    template<typename TSym, typename It>
+    constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, It it_symbol, const It it_end)
+    {
+        auto idx_state = smv.idx_start;
+
+        while ((it_symbol != it_end) && ::try_transition(smv, *it_symbol, idx_state))
+        {
+            ++it_symbol;
+        }
+
+        //TODO: check if asserts can be used in constexpr functions. Replace with static_assert?
+        //assert(((it_symbol == it_end) && (idx_state != state::state_index_invalid))
+        //    || ((it_symbol != it_end) && (idx_state == state::state_index_invalid)));
+
+        return (it_symbol == it_end) && smv[idx_state].is_accept_state;
+    }
+
+    template<typename TSym, size_t N>
+    constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, const TSym (&symbols)[N])
+    {
+        return is_accepted(smv, symbols, symbols + ((symbols[N - 1] == '\0') ? (N - 1) : N));
+    }
 }
 
-/*TEST(lexer, lexer_status_false)
+TEST(lexer, state_machine_view_identifier_accept)
 {
-    const bool status = lexer::get_status();
+    const auto smv_identifier = ns::get_smv_identifier();
 
-    ASSERT_EQ(false, status);
-}*/
+    EXPECT_TRUE(::is_accepted(smv_identifier, "_"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "a"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "A"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "_0"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "_a"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "_A"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "__"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "aa"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "AA"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "A0"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "AA00"));
+    EXPECT_TRUE(::is_accepted(smv_identifier, "a_b"));
+}
+
+TEST(lexer, state_machine_view_identifier_reject)
+{
+    const auto smv_identifier = ns::get_smv_identifier();
+
+    EXPECT_FALSE(::is_accepted(smv_identifier, ""));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "0"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "00"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "0_"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "0a"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "0A"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "00__"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "00aa"));
+    EXPECT_FALSE(::is_accepted(smv_identifier, "00AA"));
+}
+
+TEST(lexer, state_machine_view_fractional_literal_accept)
+{
+    const auto smv_fractional = ns::get_smv_fractional_literal();
+
+    EXPECT_TRUE(::is_accepted(smv_fractional, "0."));
+    EXPECT_TRUE(::is_accepted(smv_fractional, ".0"));
+    EXPECT_TRUE(::is_accepted(smv_fractional, "0.0"));
+    EXPECT_TRUE(::is_accepted(smv_fractional, "0123456789.0123456789"));
+}
+
+TEST(lexer, state_machine_view_fractional_literal_reject)
+{
+    const auto smv_fractional = ns::get_smv_fractional_literal();
+
+    EXPECT_FALSE(::is_accepted(smv_fractional, ""));
+    EXPECT_FALSE(::is_accepted(smv_fractional, "0"));
+    EXPECT_FALSE(::is_accepted(smv_fractional, "0.a"));
+    EXPECT_FALSE(::is_accepted(smv_fractional, "a.0"));
+    EXPECT_FALSE(::is_accepted(smv_fractional, "0123456789"));
+}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "state_index.h"
 #include "state_machine.h"
 
 #include "symbol_set.h"
@@ -20,31 +21,37 @@ namespace lexer
         class span
         {
         public:
+            using value_type = T;
+
             template<std::size_t N>
-            constexpr span(const T (&array)[N]) noexcept :
+            constexpr span(const value_type (&array)[N]) noexcept :
                 _pbegin(std::begin(array)),
                 _pend(std::end(array))
             {
             }
 
-            constexpr const T* begin() const noexcept
+            using const_iterator = const value_type*;
+
+            constexpr const_iterator begin() const noexcept
             {
                 return _pbegin;
             }
 
-            constexpr const T* end() const noexcept
+            constexpr const_iterator end() const noexcept
             {
                 return _pend;
             }
 
-            constexpr const T& operator[](size_t idx) const
+            using const_reference = const value_type&;
+
+            constexpr const_reference operator[](size_t idx) const
             {
                 return *(_pbegin + idx);
             }
 
         private:
-            const T* const _pbegin;
-            const T* const _pend;
+            const_iterator const _pbegin;
+            const_iterator const _pend;
         };
     }
 
