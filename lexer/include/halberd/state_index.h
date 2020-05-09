@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits> // std::numeric_limits
+
 #include <cstddef> // std::size_t
 
 
@@ -25,5 +27,7 @@ namespace lexer
 
     template<state_index_t Idx>
     constexpr state_index_tag<Idx> state_index_tag_v;
+
+    constexpr state_index_t state_index_invalid = std::numeric_limits<state_index_t>::max();
 }
 }
