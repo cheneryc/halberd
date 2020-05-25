@@ -19,8 +19,8 @@ namespace lexer
         static_assert(meta::dependent_false<T>, "basic_symbol_set_array: template parameter T must be basic_symbol_set");
     };
 
-    template<typename TSym, TSym... SymSet>
-    struct basic_symbol_set_array<basic_symbol_set<TSym, SymSet...>>
+    template<typename TSym, TSym... Symbols>
+    struct basic_symbol_set_array<basic_symbol_set<TSym, Symbols...>>
     {
         using value_type = TSym;
         using const_iterator = const value_type*;
@@ -35,18 +35,18 @@ namespace lexer
             return std::end(values);
         }
 
-        static constexpr value_type values[] = { SymSet... };
+        static constexpr value_type values[] = { Symbols... };
     };
     
-    template<typename TSym, TSym... SymSet>
-    constexpr TSym basic_symbol_set_array<basic_symbol_set<TSym, SymSet...>>::values[]; // Out-of-line static member definition
+    template<typename TSym, TSym... Symbols>
+    constexpr TSym basic_symbol_set_array<basic_symbol_set<TSym, Symbols...>>::values[]; // Out-of-line static member definition
 
     // Converters
 
-    template<typename TSym, TSym... SymSet>
-    constexpr basic_symbol_set_array<basic_symbol_set<TSym, SymSet...>> to_symbol_set_array(const basic_symbol_set<TSym, SymSet...>&) noexcept
+    template<typename TSym, TSym... Symbols>
+    constexpr auto to_symbol_set_array(basic_symbol_set<TSym, Symbols...>) noexcept
     {
-        return {};
+        return basic_symbol_set_array<basic_symbol_set<TSym, Symbols...>>();
     }
 }
 }

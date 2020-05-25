@@ -72,10 +72,10 @@ namespace lexer
         const state_index_t idx_to;
     };
 
-    template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, TSym... SymSet>
-    constexpr state_transition_view<TSym> to_state_transition_view(const state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, SymSet...>>&) noexcept
+    template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+    constexpr state_transition_view<TSym> to_state_transition_view(state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>) noexcept
     {
-        return { basic_symbol_set_array<basic_symbol_set<TSym, SymSet...>>::values, IdxFrom, IdxTo };
+        return { basic_symbol_set_array<basic_symbol_set<TSym, Symbols...>>::values, IdxFrom, IdxTo };
     }
 
     template<typename T>
@@ -119,7 +119,7 @@ namespace lexer
     };
 
     template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr state_view<TSym> to_state_view(const state<TSym, Idx, B, TTrans...>&) noexcept
+    constexpr state_view<TSym> to_state_view(state<TSym, Idx, B, TTrans...>) noexcept
     {
         return { state_array<state<TSym, Idx, B, TTrans...>>::values, Idx, B };
     }
@@ -164,7 +164,7 @@ namespace lexer
     };
 
     template<typename TSym, state_index_t IdxStart, typename... TStates>
-    constexpr state_machine_view<TSym> to_state_machine_view(const state_machine<TSym, IdxStart, TStates...>&) noexcept
+    constexpr state_machine_view<TSym> to_state_machine_view(state_machine<TSym, IdxStart, TStates...>) noexcept
     {
         return { state_machine_array<state_machine<TSym, IdxStart, TStates...>>::values, IdxStart };
     }

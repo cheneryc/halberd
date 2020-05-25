@@ -15,9 +15,9 @@ namespace
 TEST(state_machine, state_transition_to_view)
 {
     using test_transition_symbols = ns::basic_symbol_set<char, 'a', 'b', 'c'>;
-    using test_transition = ns::state_transition<char, 0U, 1U, test_transition_symbols>;
 
-    constexpr auto test_transition_view = ns::to_state_transition_view(test_transition());
+    constexpr auto test_transition = ns::state_transition_v<char, 0U, 1U, test_transition_symbols>;
+    constexpr auto test_transition_view = ns::to_state_transition_view(test_transition);
 
     ASSERT_EQ(0U, test_transition_view.idx_from);
     ASSERT_EQ(1U, test_transition_view.idx_to);
