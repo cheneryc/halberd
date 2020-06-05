@@ -6,10 +6,13 @@ set(HEADER include/halberd/lexer.h
            include/halberd/state_index.h
            include/halberd/state_machine.h
            include/halberd/state_machine_array.h
+           include/halberd/state_machine_operators.h
            include/halberd/symbol_set.h
            include/halberd/symbol_set_array.h
            include/halberd/symbol_set_operators.h
            include/halberd/meta/dependent.h
+           include/halberd/meta/type_list.h
+           include/halberd/meta/type_wrapper.h
            include/halberd/meta/value_list.h
            include/halberd/meta/value_set.h)
 
