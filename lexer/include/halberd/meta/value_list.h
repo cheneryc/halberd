@@ -46,13 +46,13 @@ namespace meta
     constexpr auto concat(value_list<T, Vs...>) noexcept
     {
         return value_list_v<T, Vs...>;
-    };
+    }
 
     template<typename T, T... V1s, T... V2s, typename... Ts>
-    constexpr auto concat(value_list<T, V1s...>, value_list<T, V2s...>, Ts...)
+    constexpr auto concat(value_list<T, V1s...>, value_list<T, V2s...>, Ts...) noexcept
     {
         return concat(value_list_v<T, V1s..., V2s...>, Ts()...);
-    };
+    }
 
     // Creation
 

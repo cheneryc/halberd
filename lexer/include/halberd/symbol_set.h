@@ -55,7 +55,7 @@ namespace lexer
         constexpr auto to_symbol_set(meta::value_set<TSym, Symbols...>) noexcept
         {
             return basic_symbol_set_v<TSym, Symbols...>;
-        };
+        }
 
         template<typename TSym, TSym... Symbols>
         constexpr auto to_symbol_set(meta::value_list<TSym, Symbols...>) noexcept
@@ -80,12 +80,12 @@ namespace lexer
     constexpr auto make_symbol_set(basic_symbol_range<TSym, SymFrom, SymTo>) noexcept
     {
         return make_symbol_set(basic_symbol_sequence_v<TSym, SymFrom, (SymTo - SymFrom) + 1U>); // The range is inclusive - adding one includes SymTo in the generated sequence
-    };
+    }
 
     template<typename TSym, TSym... Symbols>
     constexpr auto make_symbol_set(basic_symbol_set<TSym, Symbols...> symbols) noexcept
     {
         return symbols; // Pass through for basic_symbol_set
-    };
+    }
 }
 }

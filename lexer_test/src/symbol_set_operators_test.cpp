@@ -1,4 +1,5 @@
 #include <halberd/symbol_set_operators.h>
+#include <halberd/symbol_set.h>
 #include <halberd/symbol_set_array.h>
 
 #include <gtest/gtest.h>

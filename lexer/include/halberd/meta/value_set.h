@@ -24,13 +24,13 @@ namespace meta
     constexpr auto set_to_list(value_set<T, Vs...>) noexcept
     {
         return value_list_v<T, Vs...>;
-    };
+    }
 
     template<typename T, T... Vs>
     constexpr auto list_to_set(value_list<T, Vs...>) noexcept
     {
         return value_set_v<T, Vs...>;
-    };
+    }
 
     // Binary operators
 
@@ -44,24 +44,24 @@ namespace meta
         constexpr auto list = concat(value_list_v<T, ((V1 < V2) ? V1 : V2)>, list_rec);
 
         return list_to_set(list);
-    };
+    }
 
     template<typename T, T V, T... Vs>
     constexpr auto operator|(value_set<T, V, Vs...>, value_set<T>) noexcept
     {
         return value_set_v<T, V, Vs...>;
-    };
+    }
 
     template<typename T, T V, T... Vs>
     constexpr auto operator|(value_set<T>, value_set<T, V, Vs...>) noexcept
     {
         return value_set_v<T, V, Vs...>;
-    };
+    }
 
     template<typename T>
     constexpr auto operator|(value_set<T>, value_set<T>) noexcept
     {
         return value_set_v<T>;
-    };
+    }
 }
 }
