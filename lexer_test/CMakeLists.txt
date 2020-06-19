@@ -4,7 +4,8 @@ set(SOURCE src/lexer_test.cpp
            src/state_machine_test.cpp
            src/state_machine_operators_test.cpp
            src/symbol_set_test.cpp
-           src/symbol_set_operators_test.cpp)
+           src/symbol_set_operators_test.cpp
+           src/meta/type_list_test.cpp)
 
 add_executable(halberd_lexer_test ${SOURCE})
 

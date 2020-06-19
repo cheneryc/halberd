@@ -20,5 +20,11 @@ namespace meta
     {
         return type_wrapper_v<T>;
     }
+
+    template<typename T>
+    constexpr T unwrap(type_wrapper<T>) noexcept
+    {
+        return {};
+    }
 }
 }

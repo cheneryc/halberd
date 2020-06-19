@@ -153,5 +153,17 @@ namespace lexer
         static_assert(Idx > std::numeric_limits<state_index_t>::min(), "prev_index_tag: template parameter Idx is the minimum possible value");
         return state_index_tag<Idx - 1U>();
     }
+
+    template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+    constexpr state_index_t get_index_from(state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>) noexcept
+    {
+        return IdxFrom;
+    }
+
+    template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+    constexpr state_index_t get_index_to(state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>) noexcept
+    {
+        return IdxTo;
+    }
 }
 }

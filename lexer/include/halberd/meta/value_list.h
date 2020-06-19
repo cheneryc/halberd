@@ -54,6 +54,20 @@ namespace meta
         return concat(value_list_v<T, V1s..., V2s...>, Ts()...);
     }
 
+    // Search operations
+
+    template<typename T, T V, T... Vs>
+    constexpr bool contains(value_list<T, V, Vs...>, T value) noexcept
+    {
+        return (V == value) || contains(value_list_v<T, Vs...>, value);
+    }
+
+    template<typename T>
+    constexpr bool contains(value_list<T>, T value) noexcept
+    {
+        return false;
+    }
+
     // Creation
 
     namespace detail
