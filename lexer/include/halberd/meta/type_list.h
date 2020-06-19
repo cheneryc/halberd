@@ -2,6 +2,8 @@
 
 #include "type_wrapper.h"
 
+#include <type_traits> // std::integral_constant, std::true_type, std::false_type
+
 
 namespace halberd
 {
@@ -14,6 +16,59 @@ namespace meta
 
     template<typename... Ts>
     constexpr type_list<Ts...> type_list_v;
+
+    // Sequence operations
+
+    template<typename T, typename... Ts, typename Fn>
+    constexpr auto transform(type_list<T, Ts...>, Fn fn) noexcept
+    {
+        constexpr auto type_wrap = fn(type_wrapper_v<T>);
+        constexpr auto types_rec = transform(type_list_v<Ts...>, fn);
+
+        return prepend(type_wrap, types_rec);
+    }
+
+    template<typename Fn>
+    constexpr auto transform(type_list<>, Fn fn) noexcept
+    {
+        return type_list_v<>;
+    }
+
+    namespace detail
+    {
+        template<typename TT, typename TF>
+        constexpr auto static_if(std::true_type, TT t, TF f)
+        {
+            return t;
+        }
+
+        template<typename TT, typename TF>
+        constexpr auto static_if(std::false_type, TT t, TF f)
+        {
+            return f;
+        }
+
+        template<bool B, typename TT, typename TF>
+        constexpr auto static_if(TT t, TF f)
+        {
+            return static_if(std::integral_constant<bool, B>(), t, f);
+        }
+    }
+
+    template<typename T, typename... Ts, typename TEnd, typename Fn>
+    constexpr auto find_if(type_list<T, Ts...>, type_wrapper<TEnd>, Fn fn) noexcept
+    {
+        constexpr auto type_wrap = type_wrapper_v<T>;
+        constexpr auto type_rec = find_if(type_list_v<Ts...>, type_wrapper_v<TEnd>, fn); //C++17: unfortunately this calls fn for all types in the list regardless of whether a match has been found, if constexpr would allow short circuiting here
+
+        return detail::static_if<fn(type_wrap)>(type_wrap, type_rec);
+    }
+
+    template<typename TEnd, typename Fn>
+    constexpr auto find_if(type_list<>, type_wrapper<TEnd>, Fn fn) noexcept
+    {
+        return type_wrapper_v<TEnd>;
+    }
 
     // Variadic operations
 

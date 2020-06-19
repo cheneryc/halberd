@@ -14,7 +14,9 @@ set(HEADER include/halberd/lexer.h
            include/halberd/meta/type_list.h
            include/halberd/meta/type_wrapper.h
            include/halberd/meta/value_list.h
-           include/halberd/meta/value_set.h)
+           include/halberd/meta/value_list_transform.h
+           include/halberd/meta/value_set.h
+           include/halberd/meta/value_wrapper.h)
 
 set(SOURCE src/lexer.cpp)
 
