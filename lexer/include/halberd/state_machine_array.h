@@ -23,6 +23,12 @@ namespace lexer
         public:
             using value_type = T;
 
+            constexpr span() noexcept :
+                _pbegin(nullptr),
+                _pend(nullptr)
+            {
+            }
+
             template<std::size_t N>
             constexpr span(const value_type (&array)[N]) noexcept :
                 _pbegin(std::begin(array)),
@@ -109,6 +115,10 @@ namespace lexer
     template<typename TSym>
     struct state_view : public detail::span<state_transition_view<TSym>>
     {
+        constexpr state_view(state_index_t idx, bool is_accept_state) noexcept : detail::span<state_transition_view<TSym>>(), idx(idx), is_accept_state(is_accept_state)
+        {
+        }
+
         template<std::size_t N>
         constexpr state_view(const state_transition_view<TSym> (&array)[N], state_index_t idx, bool is_accept_state) noexcept : detail::span<state_transition_view<TSym>>(array), idx(idx), is_accept_state(is_accept_state)
         {
@@ -117,6 +127,12 @@ namespace lexer
         const state_index_t idx;
         const bool is_accept_state;
     };
+
+    template<typename TSym, state_index_t Idx, bool B>
+    constexpr state_view<TSym> to_state_view(state<TSym, Idx, B>) noexcept
+    {
+        return { Idx, B };
+    }
 
     template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
     constexpr state_view<TSym> to_state_view(state<TSym, Idx, B, TTrans...>) noexcept

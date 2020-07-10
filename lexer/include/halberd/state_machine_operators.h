@@ -80,7 +80,7 @@ namespace lexer
         template<typename TSym, state_index_t IdxStart1, typename... TStates1, state_index_t IdxStart2, typename... TStates2>
         struct fn_create_state<state_machine<TSym, IdxStart1, TStates1...>, state_machine<TSym, IdxStart2, TStates2...>>
         {
-            static constexpr state_index_t get_combined_idx(state_index_t idx1, state_index_t idx2)
+            static constexpr state_index_t get_combined_index(state_index_t idx1, state_index_t idx2)
             {
                 return (idx1 * (sizeof...(TStates2) + 1U)) + idx2; // An index is reserved in each row for [s1, e] states along with an extra row for [e, s2] states
             }
@@ -98,8 +98,8 @@ namespace lexer
                 template<TSym Sym>
                 constexpr auto operator()(meta::value_wrapper<TSym, Sym>) const noexcept
                 {
-                    constexpr state_index_t idx_from = get_combined_idx(Idx1, Idx2);
-                    constexpr state_index_t idx_to   = get_combined_idx(
+                    constexpr state_index_t idx_from = get_combined_index(Idx1, Idx2);
+                    constexpr state_index_t idx_to   = get_combined_index(
                         get_transition_index(state_v<TSym, Idx1, B1, TTrans1...>, basic_symbol_v<TSym, Sym>, sizeof...(TStates1)),
                         get_transition_index(state_v<TSym, Idx2, B2, TTrans2...>, basic_symbol_v<TSym, Sym>, sizeof...(TStates2)));
 
@@ -120,13 +120,13 @@ namespace lexer
                     state<TSym, Idx1, B1, TTrans1...>,
                     state<TSym, Idx2, B2, TTrans2...>>;
 
-                constexpr state_index_t idx = get_combined_idx(Idx1, Idx2);
+                constexpr state_index_t idx = get_combined_index(Idx1, Idx2);
 
                 //TODO: merge transitions that go to the same 'to' state (currently each symbol results in a separate transition)
                 constexpr auto state_transition_list = meta::transform_values(meta::set_to_list(state_alphabet), fn_create_state_transition());
-                constexpr auto state_transition = make_state<TSym, idx, B1 || B2>(state_transition_list);
+                constexpr auto state = make_state<TSym, idx, B1 || B2>(state_transition_list);
 
-                return meta::wrap(state_transition);
+                return meta::wrap(state);
             }
         };
     }
@@ -142,7 +142,7 @@ namespace lexer
             state_machine<TSym, IdxStart1, TStates1...>,
             state_machine<TSym, IdxStart2, TStates2...>>;
 
-        constexpr state_index_t idx_start = fn_create_state::get_combined_idx(IdxStart1, IdxStart2);
+        constexpr state_index_t idx_start = fn_create_state::get_combined_index(IdxStart1, IdxStart2);
 
         constexpr auto state_list = meta::cartesian_product(list1, list2, fn_create_state());
         constexpr auto state_machine = detail::make_state_machine<TSym, idx_start>(state_list);
