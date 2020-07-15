@@ -2,7 +2,8 @@ project(halberd_lexer)
 
 set(INCLUDE include)
 
-set(HEADER include/halberd/lexer.h
+set(HEADER include/halberd/keyword.h
+           include/halberd/lexer.h
            include/halberd/state_index.h
            include/halberd/state_machine.h
            include/halberd/state_machine_array.h
@@ -16,9 +17,11 @@ set(HEADER include/halberd/lexer.h
            include/halberd/meta/value_list.h
            include/halberd/meta/value_list_transform.h
            include/halberd/meta/value_set.h
-           include/halberd/meta/value_wrapper.h)
+           include/halberd/meta/value_wrapper.h
+           include/halberd/util/string.h)
 
-set(SOURCE src/lexer.cpp)
+set(SOURCE src/keyword.cpp
+           src/lexer.cpp)
 
 add_library(halberd_lexer STATIC ${SOURCE} ${HEADER})
 

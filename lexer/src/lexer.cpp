@@ -2,6 +2,7 @@
 
 #include <halberd/state_machine.h>
 #include <halberd/state_machine_array.h>
+#include <halberd/state_machine_operators.h>
 #include <halberd/symbol_set.h>
 #include <halberd/symbol_set_operators.h>
 
@@ -86,4 +87,15 @@ ns::state_machine_view<char> ns::get_smv_fractional_literal() noexcept
     constexpr auto smv = ns::to_state_machine_view(sm);
 
     return smv;
+}
+
+ns::state_machine_view<char> ns::get_smv_union() noexcept
+{
+    constexpr auto sm_union =
+        ::get_sm_identifier<char>() |
+        ::get_sm_fractional_literal<char>();
+
+    constexpr auto smv_union = ns::to_state_machine_view(sm_union);
+
+    return smv_union;
 }
