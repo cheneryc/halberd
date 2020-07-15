@@ -1,6 +1,7 @@
 project(halberd_lexer_test)
 
-set(SOURCE src/lexer_test.cpp
+set(SOURCE src/keyword_test.cpp
+           src/lexer_test.cpp
            src/state_machine_test.cpp
            src/state_machine_operators_test.cpp
            src/symbol_set_test.cpp

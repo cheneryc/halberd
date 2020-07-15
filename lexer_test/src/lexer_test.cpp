@@ -3,6 +3,8 @@
 #include <halberd/state_index.h>
 #include <halberd/state_machine_array.h>
 
+#include <halberd/util/string.h> // halberd::util::length
+
 #include <gtest/gtest.h>
 
 #include <algorithm> // std::binary_search
@@ -72,7 +74,7 @@ namespace
     template<typename TSym, size_t N>
     constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, const TSym (&symbols)[N])
     {
-        return is_accepted(smv, symbols, symbols + ((symbols[N - 1] == '\0') ? (N - 1) : N));
+        return is_accepted(smv, symbols, symbols + halberd::util::length(symbols));
     }
 }
 
