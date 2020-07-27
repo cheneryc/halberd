@@ -8,9 +8,12 @@ set(HEADER include/halberd/keyword.h
            include/halberd/state_machine.h
            include/halberd/state_machine_array.h
            include/halberd/state_machine_operators.h
+           include/halberd/state_machine_runner.h
+           include/halberd/symbol.h
            include/halberd/symbol_set.h
            include/halberd/symbol_set_array.h
            include/halberd/symbol_set_operators.h
+           include/halberd/token.h
            include/halberd/meta/dependent.h
            include/halberd/meta/type_list.h
            include/halberd/meta/type_wrapper.h
@@ -21,7 +24,9 @@ set(HEADER include/halberd/keyword.h
            include/halberd/util/string.h)
 
 set(SOURCE src/keyword.cpp
-           src/lexer.cpp)
+           src/lexer.cpp
+           src/symbol.cpp
+           src/token.cpp)
 
 add_library(halberd_lexer STATIC ${SOURCE} ${HEADER})
 

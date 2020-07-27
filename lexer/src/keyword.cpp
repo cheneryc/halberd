@@ -69,19 +69,19 @@ std::pair<ns::keyword, bool> ns::to_keyword(const char* str, std::size_t length)
 {
     keyword kw;
 
-    switch (hash(str, length))
+    switch (::hash(str, length))
     {
-        case hash("var"):
+        case ::hash("var"):
             kw = keyword::strict_var;
             break;
-        case hash("const"):
+        case ::hash("const"):
             kw = keyword::strict_const;
             break;
         default:
             return { kw, false }; // The returned keyword value is undefined
     }
 
-    // Explicit string equality check is required to resolve hash collisions
+    // Explicit string equality check is required to resolve possible hash collisions
     return { kw, std::strcmp(str, ns::to_string(kw)) == 0 };
 }
 
@@ -89,12 +89,12 @@ const char* ns::to_string(ns::keyword kw) noexcept
 {
     const char* str = nullptr;
 
-    switch(kw)
+    switch (kw)
     {
-        case ns::keyword::strict_var:
+        case keyword::strict_var:
             str = "var";
             break;
-        case ns::keyword::strict_const:
+        case keyword::strict_const:
             str = "const";
             break;
     }
