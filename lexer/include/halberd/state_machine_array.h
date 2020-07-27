@@ -50,7 +50,7 @@ namespace lexer
 
             using const_reference = const value_type&;
 
-            constexpr const_reference operator[](size_t idx) const
+            constexpr const_reference operator[](std::size_t idx) const
             {
                 return *(_pbegin + idx);
             }

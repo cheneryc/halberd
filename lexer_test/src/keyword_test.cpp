@@ -17,14 +17,14 @@ TEST(keyword, to_string)
 TEST(keyword, to_keyword_accept)
 {
     {
-        auto result = ns::to_keyword("var");
+        const auto result = ns::to_keyword("var");
 
         ASSERT_TRUE(result.second);
         ASSERT_EQ(ns::keyword::strict_var, result.first);
     }
 
     {
-        auto result = ns::to_keyword("const");
+        const auto result = ns::to_keyword("const");
 
         ASSERT_TRUE(result.second);
         ASSERT_EQ(ns::keyword::strict_const, result.first);

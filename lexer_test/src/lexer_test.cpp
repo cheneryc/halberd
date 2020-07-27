@@ -1,65 +1,23 @@
 #include <halberd/lexer.h>
 
-#include <halberd/state_index.h>
 #include <halberd/state_machine_array.h>
+#include <halberd/state_machine_runner.h> // try_transition
 
 #include <halberd/util/string.h> // halberd::util::length
 
 #include <gtest/gtest.h>
-
-#include <algorithm> // std::binary_search
 
 
 namespace
 {
     namespace ns = halberd::lexer;
 
-    template<typename TSym>
-    constexpr bool try_transition(const ns::state_transition_view<TSym>& stv, TSym sym)
-    {
-        //TODO: may need to implement binary_search as std version not guaranteed constepxr until C++20
-        return std::binary_search(
-            stv.begin(),
-            stv.end(),
-            sym);
-    }
-
-    template<typename TSym>
-    constexpr bool try_transition(const ns::state_machine_view<TSym>& smv, TSym sym, size_t& idx_state)
-    {
-        if (ns::state_index_invalid == idx_state)
-        {
-            throw std::exception(); //TODO: don't use exceptions here so the function can be noexcept?
-        }
-
-        const auto& sv = smv[idx_state];
-
-        auto it_trans = sv.begin();
-        const auto it_end = sv.end();
-
-        while ((it_trans != it_end) && !::try_transition(*it_trans, sym))
-        {
-            ++it_trans;
-        }
-
-        if (it_trans != it_end)
-        {
-            idx_state = it_trans->idx_to;
-        }
-        else
-        {
-            idx_state = ns::state_index_invalid;
-        }
-
-        return idx_state != ns::state_index_invalid;
-    }
-
     template<typename TSym, typename It>
     constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, It it_symbol, const It it_end)
     {
         auto idx_state = smv.idx_start;
 
-        while ((it_symbol != it_end) && ::try_transition(smv, *it_symbol, idx_state))
+        while ((it_symbol != it_end) && ns::try_transition(smv, *it_symbol, idx_state))
         {
             ++it_symbol;
         }
@@ -71,7 +29,7 @@ namespace
         return (it_symbol == it_end) && smv[idx_state].is_accept_state;
     }
 
-    template<typename TSym, size_t N>
+    template<typename TSym, std::size_t N>
     constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, const TSym (&symbols)[N])
     {
         return is_accepted(smv, symbols, symbols + halberd::util::length(symbols));
@@ -130,4 +88,193 @@ TEST(lexer, state_machine_view_fractional_literal_reject)
     EXPECT_FALSE(::is_accepted(smv_fractional, "0.a"));
     EXPECT_FALSE(::is_accepted(smv_fractional, "a.0"));
     EXPECT_FALSE(::is_accepted(smv_fractional, "0123456789"));
+}
+
+TEST(lexer, scan_empty_string)
+{
+    const auto tokens = ns::scan("");
+
+    ASSERT_TRUE(tokens.empty());
+}
+
+TEST(lexer, scan_whitespace)
+{
+    {
+        const auto tokens = ns::scan(" ");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+
+    {
+        const auto tokens = ns::scan("  ");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+
+    {
+        const auto tokens = ns::scan("\t");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+
+    {
+        const auto tokens = ns::scan("\t\t");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+
+    {
+        const auto tokens = ns::scan("\n");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+
+    {
+        const auto tokens = ns::scan("\n\n");
+
+        EXPECT_TRUE(tokens.empty());
+    }
+}
+
+TEST(lexer, scan_symbol_add)
+{
+    const ns::symbol expected_symbol = ns::symbol::op_add;
+
+    {
+        const auto tokens = ns::scan("+");
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan(" +"); // leading whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan("+ "); // trailing whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+}
+
+TEST(lexer, scan_identifier_character)
+{
+    const char expected_id[] = "a";
+
+    {
+        const auto tokens = ns::scan(expected_id);
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens.front())._identifier.c_str());
+    }
+
+    {
+        const auto tokens = ns::scan(" a"); // leading whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens.front())._identifier.c_str());
+    }
+
+    {
+        const auto tokens = ns::scan("a "); // trailing whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens.front())._identifier.c_str());
+    }
+}
+
+TEST(lexer, scan_identifier_string)
+{
+    const char expected_id[] = "my_identifier";
+
+    const auto tokens = ns::scan(expected_id);
+
+    ASSERT_EQ(1U, tokens.size());
+    ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens.front())._identifier.c_str());
+}
+
+TEST(lexer, scan_identifier_symbol)
+{
+    const char expected_id[] = "a";
+
+    {
+        const auto tokens = ns::scan("a+");
+
+        ASSERT_EQ(2U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan("a +"); // whitespace should be ignored
+
+        ASSERT_EQ(2U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan("a + "); // whitespace should be ignored
+
+        ASSERT_EQ(2U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+    }
+}
+
+TEST(lexer, scan_identifier_symbol_identifier)
+{
+    const char expected_id1[] = "a";
+    const char expected_id2[] = "b";
+
+    {
+        const auto tokens = ns::scan("a=b");
+
+        ASSERT_EQ(3U, tokens.size());
+        ASSERT_STREQ(expected_id1, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_assign, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_STREQ(expected_id2, dynamic_cast<const ns::token_identifier&>(*tokens[2])._identifier.c_str());
+    }
+
+    {
+        const auto tokens = ns::scan("a = b"); // whitespace should be ignored
+
+        ASSERT_EQ(3U, tokens.size());
+        ASSERT_STREQ(expected_id1, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_assign, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_STREQ(expected_id2, dynamic_cast<const ns::token_identifier&>(*tokens[2])._identifier.c_str());
+    }
+}
+
+TEST(lexer, scan_identifier_symbol_fractional)
+{
+    const char expected_id[] = "f";
+
+    {
+        const auto tokens = ns::scan("f+1.0");
+
+        ASSERT_EQ(3U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(1.0f, dynamic_cast<const ns::token_literal_fractional&>(*tokens[2])._value);
+    }
+
+    {
+        const auto tokens = ns::scan("f + 1.0"); // whitespace should be ignored
+
+        ASSERT_EQ(3U, tokens.size());
+        ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(1.0f, dynamic_cast<const ns::token_literal_fractional&>(*tokens[2])._value);
+    }
+}
+
+TEST(lexer, scan_error_invalid_identifier)
+{
+    ASSERT_THROW(ns::scan("0b"), std::exception); // identifier cannot begin with a numeric character
 }
