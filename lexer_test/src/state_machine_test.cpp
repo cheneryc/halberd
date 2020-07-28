@@ -30,7 +30,7 @@ TEST(state_machine, state_to_view)
     using test_transition_symbols = ns::basic_symbol_set<char, 'X', 'Y', 'Z'>;
     using test_transition = ns::state_transition<char, 0U, 0U, test_transition_symbols>;
 
-    constexpr auto test_state = ns::state_v<char, 0U, false, test_transition>;
+    constexpr auto test_state = ns::state_v<char, 0U, false, ns::state_tag, ns::state_tag_default, test_transition>;
     constexpr auto test_state_view = ns::to_state_view(test_state);
 
     ASSERT_EQ(0U, test_state_view.idx);
@@ -116,9 +116,9 @@ TEST(state_machine, state_machine_to_view)
 {
     using test_transition_symbols = ns::basic_symbol_set<char, '$'>;
     using test_transition = ns::state_transition<char, 0U, 0U, test_transition_symbols>;
-    using test_state = ns::state<char, 0U, true, test_transition>;
+    using test_state = ns::state<char, 0U, true, ns::state_tag, ns::state_tag_default, test_transition>;
     
-    constexpr auto test_state_machine = ns::state_machine_v<char, 0U, test_state>;
+    constexpr auto test_state_machine = ns::state_machine_v<char, 0U, ns::state_tag, test_state>;
     constexpr auto test_state_machine_view = ns::to_state_machine_view(test_state_machine);
 
     ASSERT_EQ(0U, test_state_machine_view.idx_start);
