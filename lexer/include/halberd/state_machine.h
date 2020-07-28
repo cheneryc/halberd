@@ -8,6 +8,8 @@
 
 #include <limits> // std::numeric_limits
 
+#include <cstdint> // uint8_t
+
 
 namespace halberd
 {
@@ -57,7 +59,7 @@ namespace lexer
         }
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
     struct state
     {
         //TODO: add asserts that TTrans contains only state_transition(s)
@@ -66,39 +68,52 @@ namespace lexer
         template<TSym... Symbols, state_index_t IdxTo>
         constexpr auto operator+(detail::state_transition_desc<basic_symbol_set<TSym, Symbols...>, state_index_tag<IdxTo>>) const noexcept
         {
-            return state<TSym, Idx, B, TTrans..., state_transition<TSym, Idx, IdxTo, basic_symbol_set<TSym, Symbols...>>>();
+            return state<TSym, Idx, B, TTag, Tag, TTrans..., state_transition<TSym, Idx, IdxTo, basic_symbol_set<TSym, Symbols...>>>();
         }
 
         template<TSym... Symbols>
         constexpr auto operator+(detail::state_transition_desc<basic_symbol_set<TSym, Symbols...>, state_index_self_tag>) const noexcept
         {
-            return state<TSym, Idx, B, TTrans..., state_transition<TSym, Idx, Idx, basic_symbol_set<TSym, Symbols...>>>();
+            return state<TSym, Idx, B, TTag, Tag, TTrans..., state_transition<TSym, Idx, Idx, basic_symbol_set<TSym, Symbols...>>>();
         }
     };
 
-    template<typename TSym, state_index_t IdxStart, typename... TStates>
+    template<typename TSym, state_index_t IdxStart, typename TTag, typename... TStates>
     struct state_machine
     {
         //TODO: add asserts that TStates contains only state(s) (with valid indices starting at zero and incrementing by one)
         //TODO: ensure that IdxStart is a valid state (assert that IdxStart < sizeof...(TStates))
 
-        template<state_index_t Idx, bool B, typename... TTrans>
-        constexpr auto operator+(state<TSym, Idx, B, TTrans...>) const noexcept
+        template<state_index_t Idx, bool B, TTag Tag, typename... TTrans>
+        constexpr auto operator+(state<TSym, Idx, B, TTag, Tag, TTrans...>) const noexcept
         {
-            return state_machine<TSym, IdxStart, TStates..., state<TSym, Idx, B, TTrans...>>();
+            return state_machine<TSym, IdxStart, TTag, TStates..., state<TSym, Idx, B, TTag, Tag, TTrans...>>();
         }
     };
 
+    // Enumerations
+
+    enum class state_tag : uint8_t
+    {
+    };
+
+    constexpr state_tag operator|(state_tag, state_tag) noexcept
+    {
+        return {};
+    }
+
     // Variables
+
+    constexpr state_tag state_tag_default = {};
 
     template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, typename TSymSet>
     constexpr state_transition<TSym, IdxFrom, IdxTo, TSymSet> state_transition_v;
 
-    template<typename TSym, state_index_t Idx, bool B = false, typename... TTrans>
-    constexpr state<TSym, Idx, B, TTrans...> state_v;
+    template<typename TSym, state_index_t Idx, bool B = false, typename TTag = state_tag, TTag Tag = TTag(), typename... TTrans>
+    constexpr state<TSym, Idx, B, TTag, Tag, TTrans...> state_v;
 
-    template<typename TSym, state_index_t IdxStart = 0U, typename... TStates>
-    constexpr state_machine<TSym, IdxStart, TStates...> state_machine_v;
+    template<typename TSym, state_index_t IdxStart = 0U, typename TTag = state_tag, typename... TStates>
+    constexpr state_machine<TSym, IdxStart, TTag, TStates...> state_machine_v;
 
     // Functions
 
@@ -114,41 +129,41 @@ namespace lexer
         return detail::make_transition_desc(make_symbol_set(symbols), state_index_self_tag());
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr state_index_t get_index(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr state_index_t get_index(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         return Idx;
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr auto get_index_tag(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr auto get_index_tag(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         return state_index_tag<Idx>();
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr state_index_t next_index(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr state_index_t next_index(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         static_assert(Idx < std::numeric_limits<state_index_t>::max(), "next_index: template parameter Idx is the maximum possible value");
         return Idx + 1U;
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr auto next_index_tag(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr auto next_index_tag(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         static_assert(Idx < std::numeric_limits<state_index_t>::max(), "next_index_tag: template parameter Idx is the maximum possible value");
         return state_index_tag<Idx + 1U>();
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr state_index_t prev_index(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr state_index_t prev_index(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         static_assert(Idx > std::numeric_limits<state_index_t>::min(), "prev_index: template parameter Idx is the minimum possible value");
         return Idx - 1U;
     }
 
-    template<typename TSym, state_index_t Idx, bool B, typename... TTrans>
-    constexpr auto prev_index_tag(state<TSym, Idx, B, TTrans...>) noexcept
+    template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
+    constexpr auto prev_index_tag(state<TSym, Idx, B, TTag, Tag, TTrans...>) noexcept
     {
         static_assert(Idx > std::numeric_limits<state_index_t>::min(), "prev_index_tag: template parameter Idx is the minimum possible value");
         return state_index_tag<Idx - 1U>();
