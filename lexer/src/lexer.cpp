@@ -9,7 +9,12 @@
 #include <halberd/symbol_set.h>
 #include <halberd/symbol_set_operators.h>
 
-#include <sstream> // std::basic_ostringstream
+#include <exception> // std::exception
+#include <string> // std::basic_string
+#include <sstream> // std::basic_istringstream, std::basic_ostringstream
+#include <type_traits> // std::underlying_type_t
+
+#include <cctype> // std::isspace
 
 
 namespace
@@ -77,7 +82,7 @@ namespace
         return sm;
     }
 
-    std::unique_ptr<ns::token> tokenize_identifier(std::string&& str_token)
+    std::unique_ptr<ns::token> tokenize_identifier(std::basic_string<char>&& str_token)
     {
         const auto result_keyword = ns::to_keyword(str_token.c_str(), str_token.length());
 
@@ -91,7 +96,7 @@ namespace
         }
     }
 
-    std::unique_ptr<ns::token> tokenize(std::string&& str_token, ns::lexer_tag tag)
+    std::unique_ptr<ns::token> tokenize(std::basic_string<char>&& str_token, ns::lexer_tag tag)
     {
         std::unique_ptr<ns::token> token;
 
@@ -112,21 +117,18 @@ namespace
 
     std::unique_ptr<ns::token> tokenize(std::basic_ostringstream<char>& oss, ns::lexer_tag tag)
     {
-        std::unique_ptr<ns::token> token;
+        std::basic_string<char> str_token = oss.str();
 
-        //TODO: is this check necessary? check the return value of str() instead?
-        if (oss.tellp())
+        if (!str_token.empty())
         {
-            std::string str_token = oss.str();
-
             // Reset the stringstream
-            oss.str(std::string());
+            oss.str(std::basic_string<char>());
             oss.clear();
 
-            token = ::tokenize(std::move(str_token), tag);
+            return ::tokenize(std::move(str_token), tag);
         }
 
-        return token;
+        return {};
     }
 }
 
@@ -177,15 +179,15 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
 
     ns::state_machine_runner<char, ns::lexer_tag> smr_union(ns::get_smv_union());
 
-    std::basic_istringstream<char> ss(str);
+    std::basic_istringstream<char> ss_input;
     std::basic_ostringstream<char> ss_token;
-
-    //TODO: pass flag to ss_input constructor instead?
-    ss >> std::noskipws;
 
     char ch;
 
-    while (ss >> ch)
+    ss_input >> std::noskipws;
+    ss_input.str(str);
+
+    while (ss_input >> ch)
     {
         // Get the current state's properties before calling try_transition,
         // in case the state machine transitions to an invalid state.
