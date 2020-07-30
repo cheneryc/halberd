@@ -28,16 +28,16 @@ namespace
             ns::basic_symbol_v<TSym, '_'>;
 
         constexpr auto s_end =
-            ns::state_v<TSym, 0U, true>
+            ns::state_v<TSym, 0U, true, ns::lexer_tag, ns::lexer_tag::accept_identifier>
                 + ns::make_transition_self(nondigit_symbol_set)
                 + ns::make_transition_self(digit_symbol_range<TSym>);
 
         constexpr auto s_start =
-            ns::state_v<TSym, ns::next_index(s_end)>
+            ns::state_v<TSym, ns::next_index(s_end), false, ns::lexer_tag>
                 + ns::make_transition(nondigit_symbol_set, ns::get_index_tag(s_end));
 
         constexpr auto sm =
-            ns::state_machine_v<TSym, ns::get_index(s_start)>
+            ns::state_machine_v<TSym, ns::get_index(s_start), ns::lexer_tag>
                 + s_end
                 + s_start;
 
@@ -50,25 +50,25 @@ namespace
         constexpr auto period_symbol = ns::basic_symbol_v<TSym, '.'>;
 
         constexpr auto s_end =
-            ns::state_v<TSym, 0U, true>
+            ns::state_v<TSym, 0U, true, ns::lexer_tag, ns::lexer_tag::accept_literal_fraction>
                 + ns::make_transition_self(digit_symbol_range<TSym>);
 
         constexpr auto s1 =
-            ns::state_v<TSym, ns::next_index(s_end)>
+            ns::state_v<TSym, ns::next_index(s_end), false, ns::lexer_tag>
                 + ns::make_transition(digit_symbol_range<TSym>, ns::get_index_tag(s_end));
                 
         constexpr auto s2 =
-            ns::state_v<TSym, ns::next_index(s1)>
+            ns::state_v<TSym, ns::next_index(s1), false, ns::lexer_tag>
                 + ns::make_transition_self(digit_symbol_range<TSym>)
                 + ns::make_transition(period_symbol, ns::get_index_tag(s_end));
 
         constexpr auto s_start =
-            ns::state_v<TSym, ns::next_index(s2)>
+            ns::state_v<TSym, ns::next_index(s2), false, ns::lexer_tag>
                 + ns::make_transition(period_symbol, ns::get_index_tag(s1))
                 + ns::make_transition(digit_symbol_range<TSym>, ns::get_index_tag(s2));
 
         constexpr auto sm =
-            ns::state_machine_v<TSym, ns::get_index(s_start)>
+            ns::state_machine_v<TSym, ns::get_index(s_start), ns::lexer_tag>
                 + s_end
                 + s1
                 + s2
@@ -77,38 +77,40 @@ namespace
         return sm;
     }
 
-    std::unique_ptr<ns::token> tokenize(std::string&& str_token)
+    std::unique_ptr<ns::token> tokenize_identifier(std::string&& str_token)
     {
-        std::unique_ptr<ns::token> token;
-
-        //TODO: this function is only called when the fsm is in a start or accept state -> only need to check for keywords if the token is known to be an identifier (i.e. don't do this for literals)
         const auto result_keyword = ns::to_keyword(str_token.c_str(), str_token.length());
 
         if (result_keyword.second)
         {
-            token = std::make_unique<ns::token_identifier_reserved>(result_keyword.first);
+            return std::make_unique<ns::token_identifier_reserved>(result_keyword.first);
         }
         else
         {
-            //TODO: using a try-catch block to catch the exception like this is a hack. Instead
-            // we need to know what the original state machine was that the accept state
-            // belongs to. This could be achieved by adding a 'tag' template type and value
-            // parameter to both the state and state_machine classes. During state_machine
-            // union operations the tag values for combined states can be bitwise OR'ed together
-            try
-            {
+            return std::make_unique<ns::token_identifier>(std::move(str_token));
+        }
+    }
+
+    std::unique_ptr<ns::token> tokenize(std::string&& str_token, ns::lexer_tag tag)
+    {
+        std::unique_ptr<ns::token> token;
+
+        switch (tag)
+        {
+            case ns::lexer_tag::accept_identifier:
+                token = ::tokenize_identifier(std::move(str_token));
+                break;
+            case ns::lexer_tag::accept_literal_fraction:
                 token = std::make_unique<ns::token_literal_fractional>(str_token);
-            }
-            catch (const std::exception&)
-            {
-                token = std::make_unique<ns::token_identifier>(std::move(str_token));
-            }
+                break;
+            default:
+                throw std::exception();
         }
 
         return token;
     }
 
-    std::unique_ptr<ns::token> tokenize(std::basic_ostringstream<char>& oss)
+    std::unique_ptr<ns::token> tokenize(std::basic_ostringstream<char>& oss, ns::lexer_tag tag)
     {
         std::unique_ptr<ns::token> token;
 
@@ -121,14 +123,28 @@ namespace
             oss.str(std::string());
             oss.clear();
 
-            token = ::tokenize(std::move(str_token));
+            token = ::tokenize(std::move(str_token), tag);
         }
 
         return token;
     }
 }
 
-ns::state_machine_view<char> ns::get_smv_identifier() noexcept
+namespace halberd
+{
+namespace lexer
+{
+    constexpr lexer_tag operator|(lexer_tag tag1, lexer_tag tag2) noexcept
+    {
+        const auto tag_or = static_cast<std::underlying_type_t<lexer_tag>>(tag1) |
+                            static_cast<std::underlying_type_t<lexer_tag>>(tag2);
+
+        return static_cast<lexer_tag>(tag_or);
+    }
+}
+}
+
+ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_identifier() noexcept
 {
     constexpr auto sm = ::get_sm_identifier<char>();
     constexpr auto smv = ns::to_state_machine_view(sm);
@@ -136,7 +152,7 @@ ns::state_machine_view<char> ns::get_smv_identifier() noexcept
     return smv;
 }
 
-ns::state_machine_view<char> ns::get_smv_fractional_literal() noexcept
+ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_fractional_literal() noexcept
 {
     constexpr auto sm = ::get_sm_fractional_literal<char>();
     constexpr auto smv = ns::to_state_machine_view(sm);
@@ -144,7 +160,7 @@ ns::state_machine_view<char> ns::get_smv_fractional_literal() noexcept
     return smv;
 }
 
-ns::state_machine_view<char> ns::get_smv_union() noexcept
+ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_union() noexcept
 {
     constexpr auto sm_union =
         ::get_sm_identifier<char>() |
@@ -159,7 +175,7 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
 {
     std::vector<std::unique_ptr<ns::token>> tokens;
 
-    ns::state_machine_runner<char> smr_union(ns::get_smv_union());
+    ns::state_machine_runner<char, ns::lexer_tag> smr_union(ns::get_smv_union());
 
     std::basic_istringstream<char> ss(str);
     std::basic_ostringstream<char> ss_token;
@@ -171,6 +187,10 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
 
     while (ss >> ch)
     {
+        // Get the current state's properties before calling try_transition,
+        // in case the state machine transitions to an invalid state.
+        const lexer_tag tag = smr_union.get_state_tag();
+
         const bool is_start = smr_union.is_state_start();
         const bool is_accepting = smr_union.is_state_accepting();
 
@@ -184,7 +204,7 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
 
             if (result_symbol.second)
             {
-                if (auto token = ::tokenize(ss_token))
+                if (auto token = ::tokenize(ss_token, tag))
                 {
                     tokens.push_back(std::move(token));
                 }
@@ -193,7 +213,7 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
             }
             else if (std::isspace(static_cast<unsigned char>(ch)))
             {
-                if (auto token = ::tokenize(ss_token))
+                if (auto token = ::tokenize(ss_token, tag))
                 {
                     tokens.push_back(std::move(token));
                 }
@@ -214,7 +234,7 @@ std::vector<std::unique_ptr<ns::token>> ns::scan(const char* str)
     if (smr_union.is_state_accepting())
     {
         //TODO: throw an exception if the returned token is null? is that even possible if the state machine is in an accept state?
-        if (auto token = ::tokenize(ss_token))
+        if (auto token = ::tokenize(ss_token, smr_union.get_state_tag()))
         {
             tokens.push_back(std::move(token));
         }

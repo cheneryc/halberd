@@ -12,8 +12,8 @@ namespace
 {
     namespace ns = halberd::lexer;
 
-    template<typename TSym, typename It>
-    constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, It it_symbol, const It it_end)
+    template<typename TSym, typename TTag, typename It>
+    constexpr bool is_accepted(const ns::state_machine_view<TSym, TTag>& smv, It it_symbol, const It it_end)
     {
         auto idx_state = smv.idx_start;
 
@@ -29,8 +29,8 @@ namespace
         return (it_symbol == it_end) && smv[idx_state].is_accept_state;
     }
 
-    template<typename TSym, std::size_t N>
-    constexpr bool is_accepted(const ns::state_machine_view<TSym>& smv, const TSym (&symbols)[N])
+    template<typename TSym, typename TTag, std::size_t N>
+    constexpr bool is_accepted(const ns::state_machine_view<TSym, TTag>& smv, const TSym (&symbols)[N])
     {
         return is_accepted(smv, symbols, symbols + halberd::util::length(symbols));
     }

@@ -20,8 +20,8 @@ namespace lexer
             sym);
     }
 
-    template<typename TSym>
-    constexpr bool try_transition(const state_machine_view<TSym>& smv, TSym sym, state_index_t& idx_state)
+    template<typename TSym, typename TTag>
+    constexpr bool try_transition(const state_machine_view<TSym, TTag>& smv, TSym sym, state_index_t& idx_state)
     {
         if (state_index_invalid == idx_state)
         {
@@ -50,11 +50,11 @@ namespace lexer
         return idx_state != state_index_invalid;
     }
 
-    template<typename TSym>
+    template<typename TSym, typename TTag>
     class state_machine_runner
     {
     public:
-        state_machine_runner(state_machine_view<TSym> smv) : smv(std::move(smv)), _idx_state(smv.idx_start)
+        state_machine_runner(state_machine_view<TSym, TTag> smv) : smv(std::move(smv)), _idx_state(smv.idx_start)
         {
         }
 
@@ -79,12 +79,24 @@ namespace lexer
             return is_state_valid() && smv[_idx_state].is_accept_state;
         }
 
+        TTag get_state_tag() const
+        {
+            if (is_state_valid())
+            {
+                return smv[_idx_state].tag;
+            }
+            else
+            {
+                throw std::exception();
+            }
+        }
+
         void reset()
         {
             _idx_state = smv.idx_start;
         }
 
-        state_machine_view<TSym> smv;
+        state_machine_view<TSym, TTag> smv;
 
     private:
         state_index_t _idx_state;
