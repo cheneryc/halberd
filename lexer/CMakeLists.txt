@@ -5,6 +5,8 @@ set(INCLUDE include)
 set(HEADER include/halberd/keyword.h
            include/halberd/lexer.h
            include/halberd/lexer_tag.h
+           include/halberd/scan.h
+           include/halberd/scanner.h
            include/halberd/state_index.h
            include/halberd/state_machine.h
            include/halberd/state_machine_array.h
@@ -26,6 +28,8 @@ set(HEADER include/halberd/keyword.h
 
 set(SOURCE src/keyword.cpp
            src/lexer.cpp
+           src/scan.cpp
+           src/scanner.cpp
            src/symbol.cpp
            src/token.cpp)
 
