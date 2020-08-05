@@ -13,3 +13,5 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(lexer)
 add_subdirectory(lexer_test)
+add_subdirectory(parser)
+add_subdirectory(parser_test)
