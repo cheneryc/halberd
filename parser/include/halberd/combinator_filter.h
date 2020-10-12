@@ -23,12 +23,12 @@ namespace parser
         {
             auto result = combinator_one_v.apply(source);
 
-            if (!result.has_value() || _pred(result.get()))
+            if (!result || _pred(result.get()))
             {
                 return result;
             }
 
-            return { false };
+            return {};
         }
 
     private:

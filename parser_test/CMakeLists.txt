@@ -1,6 +1,7 @@
 project(halberd_parser_test)
 
-set(SOURCE src/parser_test.cpp)
+set(SOURCE src/parser_test.cpp
+           src/parse_result_test.cpp)
 
 add_executable(halberd_parser_test ${SOURCE})
 

@@ -24,6 +24,14 @@ namespace util
         {
         }
 
+        ~optional() noexcept
+        {
+            if (_has_value)
+            {
+                _value.~T();
+            }
+        }
+
         constexpr bool has_value() const noexcept
         {
             return _has_value;

@@ -13,17 +13,19 @@ namespace parser
     struct combinator_end : combinator
     {
         template<typename T, typename TRef>
-        parse_result<TRef> apply(source<T, TRef>& source) const
+        parse_result<> apply(source<T, TRef>& source) const
         {
+            bool is_success = true;
+
             if (TRef token = source.next())
             {
-                return {};
+                is_success = false;
             }
 
             //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
             //source.flush();
 
-            return { true };
+            return { is_success };
         }
     };
 

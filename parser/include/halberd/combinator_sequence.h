@@ -4,8 +4,8 @@
 #include "parse_result.h"
 #include "source.h"
 
-#include <tuple> // std::tuple, std::tuple_element, std::tuple_cat, std::make_tuple
-#include <utility> // std::index_sequence, std::index_sequence_for, std::declval
+#include <tuple> // std::tuple, std::tuple_element_t
+#include <utility> // std::index_sequence, std::index_sequence_for
 
 #include <cstddef> // std::size_t
 
@@ -18,10 +18,13 @@ namespace parser
     class combinator_sequence : public combinator
     {
         template<std::size_t Idx>
-        using type_parser = typename std::tuple_element<Idx, std::tuple<Ps...>>::type;
+        using sequence_element_t = std::tuple_element_t<Idx, std::tuple<Ps...>>;
 
         template<std::size_t Idx, typename TSrc>
-        using type_parser_result = typename decltype(std::declval<type_parser<Idx>>().apply(std::declval<TSrc>()))::type;
+        using sequence_element_result_t = apply_result_t<sequence_element_t<Idx>, TSrc>;
+
+        template<typename... Ts>
+        using sequence_result_t = decltype(detail::to_parse_result(meta::concat(detail::parse_result_type_list_v<Ts>...)));
 
     public:
         constexpr combinator_sequence(Ps... parsers) noexcept : _parsers(std::move(parsers)...)
@@ -36,28 +39,26 @@ namespace parser
 
     private:
         template<typename T, typename TRef, std::size_t Idx>
-        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx>) const -> parse_result<std::tuple<type_parser_result<Idx, decltype(source)>>>
+        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx>) const
         {
-            if (auto result = std::get<Idx>(_parsers).apply(source))
-            {
-                return { std::make_tuple(result.get()) };
-            }
-
-            return { false };
+            return std::get<Idx>(_parsers).apply(source);
         }
 
         template<typename T, typename TRef, std::size_t Idx, std::size_t... Is>
-        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx, Is...>) const -> parse_result<std::tuple<type_parser_result<Idx, decltype(source)>, type_parser_result<Is, decltype(source)>...>>
+        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx, Is...>) const ->
+            sequence_result_t<
+                sequence_element_result_t<Idx, decltype(source)>,
+                sequence_element_result_t<Is, decltype(source)>...>
         {
             if (auto result = apply_impl(source, std::index_sequence<Idx>()))
             {
                 if (auto result_rec = apply_impl(source, std::index_sequence<Is...>()))
                 {
-                    return { std::tuple_cat(result.get(), result_rec.get()) };
+                    return concat(result, result_rec);
                 }
             }
 
-            return { false };
+            return {};
         }
 
         std::tuple<Ps...> _parsers;

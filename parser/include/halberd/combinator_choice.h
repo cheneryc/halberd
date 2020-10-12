@@ -38,7 +38,7 @@ namespace parser
                 return { result.get() };
             }
 
-            return { false };
+            return {};
         }
 
         template<typename T, typename TRef, std::size_t Idx, std::size_t... Is>
@@ -56,7 +56,7 @@ namespace parser
                 return result;
             }
 
-            return { false };
+            return {};
         }
 
         std::tuple<Ps...> _parsers;

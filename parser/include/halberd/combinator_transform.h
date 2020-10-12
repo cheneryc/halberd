@@ -22,14 +22,12 @@ namespace parser
         template<typename T, typename TRef>
         parse_result<TRef> apply(source<T, TRef>& source) const
         {
-            auto result = _filter.apply(source);
-
-            if (!result.has_value())
+            if (auto result = _filter.apply(source))
             {
-                return result;
+                return { _fn(result.get()) };
             }
 
-            return { _fn(result.get()) };
+            return {};
         }
 
     private:
