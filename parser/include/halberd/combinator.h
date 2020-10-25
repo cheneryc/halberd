@@ -4,6 +4,8 @@
 
 #include <utility> // std::declval
 
+#include <cstddef> // std::size_t
+
 
 namespace halberd
 {

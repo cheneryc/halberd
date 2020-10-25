@@ -31,21 +31,21 @@ namespace parser
         {
         }
 
-        template<typename T, typename TRef>
-        auto apply(source<T, TRef>& source) const
+        template<typename T, typename R>
+        auto apply(source<T, R>& source) const
         {
             return apply_impl(source, std::index_sequence_for<Ps...>());
         }
 
     private:
-        template<typename T, typename TRef, std::size_t Idx>
-        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx>) const
+        template<typename T, typename R, std::size_t Idx>
+        auto apply_impl(source<T, R>& source, std::index_sequence<Idx>) const
         {
             return std::get<Idx>(_parsers).apply(source);
         }
 
-        template<typename T, typename TRef, std::size_t Idx, std::size_t... Is>
-        auto apply_impl(source<T, TRef>& source, std::index_sequence<Idx, Is...>) const ->
+        template<typename T, typename R, std::size_t Idx, std::size_t... Is>
+        auto apply_impl(source<T, R>& source, std::index_sequence<Idx, Is...>) const ->
             sequence_result_t<
                 sequence_element_result_t<Idx, decltype(source)>,
                 sequence_element_result_t<Is, decltype(source)>...>

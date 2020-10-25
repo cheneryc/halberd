@@ -12,20 +12,20 @@ namespace parser
     // Matches the end of the token sequence
     struct combinator_end : combinator
     {
-        template<typename T, typename TRef>
-        parse_result<> apply(source<T, TRef>& source) const
+        template<typename T, typename R>
+        parse_result<> apply(source<T, R>& source) const
         {
-            bool is_success = true;
+            auto result = source.next();
 
-            if (TRef token = source.next())
+            if (!result.second)
             {
-                is_success = false;
+                //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
+                //source.flush();
+
+                return { true };
             }
 
-            //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
-            //source.flush();
-
-            return { is_success };
+            return { false };
         }
     };
 
