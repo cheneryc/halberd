@@ -5,6 +5,9 @@
 #include "parse_result.h"
 #include "source.h"
 
+#include <utility> // std::declval
+#include <type_traits> // std::decay_t
+
 
 namespace halberd
 {
@@ -18,9 +21,8 @@ namespace parser
         {
         }
 
-        //TODO: need to determine the parse_result's value type from Fn
-        template<typename T, typename TRef>
-        parse_result<TRef> apply(source<T, TRef>& source) const
+        template<typename T, typename R>
+        auto apply(source<T, R>& source) const -> parse_result<std::decay_t<decltype(std::declval<Fn>()(std::declval<R>()))>>
         {
             if (auto result = _filter.apply(source))
             {

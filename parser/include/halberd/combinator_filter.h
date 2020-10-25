@@ -18,8 +18,8 @@ namespace parser
         {
         }
 
-        template<typename T, typename TRef>
-        parse_result<TRef> apply(source<T, TRef>& source) const
+        template<typename T, typename R>
+        parse_result<R> apply(source<T, R>& source) const
         {
             auto result = combinator_one_v.apply(source);
 

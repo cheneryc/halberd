@@ -19,8 +19,8 @@ namespace parser
         {
         }
 
-        template<typename T, typename TRef>
-        auto apply(source<T, TRef>& source) const -> parse_result<apply_result_element_t<Idx, P, decltype(source)>>
+        template<typename T, typename R>
+        auto apply(source<T, R>& source) const -> parse_result<apply_result_element_t<Idx, P, decltype(source)>>
         {
             if (auto result = _parser.apply(source))
             {

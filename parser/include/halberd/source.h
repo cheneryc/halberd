@@ -3,7 +3,8 @@
 #include "source_buffer.h"
 
 #include <memory> // std::shared_ptr
-#include <utility> // std::declval
+#include <utility> // std::declval, std::pair
+#include <type_traits> // std::decay_t
 
 #include <cstddef> // std::size_t
 
@@ -12,25 +13,31 @@ namespace halberd
 {
 namespace parser
 {
-    template<typename T, typename TRef = T>
+    template<typename T, typename R>
     class source
     {
     public:
-        source(std::shared_ptr<source_buffer<T, TRef>> buffer) : _buffer(std::move(buffer)), _buffer_offset()
+        source(std::shared_ptr<source_buffer<T, R>> buffer) : _buffer(std::move(buffer)), _buffer_offset()
         {
         }
 
-        TRef next()
+        std::pair<R, bool> next()
         {
-            if (auto token = _buffer->at(_buffer_offset))
+            auto result = _buffer->at(_buffer_offset);
+
+            if (!result.second)
             {
-                ++_buffer_offset; return token;
+                return { R(), false };
+            }
+            else
+            {
+                ++_buffer_offset;
             }
 
-            return {};
+            return result;
         }
 
-        std::shared_ptr<source_buffer<T, TRef>> get_buffer() noexcept
+        std::shared_ptr<source_buffer<T, R>> get_buffer() noexcept
         {
             return _buffer;
         }
@@ -46,14 +53,17 @@ namespace parser
         }
 
     private:
-        std::shared_ptr<source_buffer<T, TRef>> _buffer;
+        std::shared_ptr<source_buffer<T, R>> _buffer;
         std::size_t _buffer_offset;
     };
 
-    template<typename Fn, typename R = decltype(std::declval<Fn>()())>
-    source<R> make_source(Fn fn)
+    template<typename Fn,
+             typename Conv = detail::pass_through,
+             typename T = std::decay_t<decltype(std::declval<Fn>()())>,
+             typename R = std::decay_t<decltype(std::declval<Conv>()(std::declval<T&>()))>>
+    source<T, R> make_source(Fn fn, Conv conv = Conv())
     {
-        return { make_source_buffer(fn) };
+        return { make_source_buffer(fn, conv) };
     }
 }
 }

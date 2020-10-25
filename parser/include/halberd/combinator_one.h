@@ -11,20 +11,20 @@ namespace parser
 {
     struct combinator_one : combinator
     {
-        template<typename T, typename TRef>
-        parse_result<TRef> apply(source<T, TRef>& source) const
+        template<typename T, typename R>
+        parse_result<R> apply(source<T, R>& source) const
         {
-            if (TRef token = source.next())
-            {
-                //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
-                //source.flush();
+            auto result = source.next();
 
-                return {
-                    std::move(token)
-                };
+            if (!result.second)
+            {
+                return {};
             }
 
-            return {};
+            //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
+            //source.flush();
+
+            return { result.first };
         }
     };
 
