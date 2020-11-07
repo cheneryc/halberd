@@ -37,6 +37,11 @@ namespace parser
             return result;
         }
 
+        void flush()
+        {
+            _buffer->advance(_buffer_offset); //TODO: set _buffer_offset to zero and/or an invalid state?
+        }
+
         std::shared_ptr<source_buffer<T, R>> get_buffer() noexcept
         {
             return _buffer;
@@ -45,11 +50,6 @@ namespace parser
         std::size_t get_buffer_offset() const noexcept
         {
             return _buffer_offset;
-        }
-
-        void flush()
-        {
-            _buffer->advance(_buffer_offset); //TODO: set _buffer_offset to zero and/or an invalid state?
         }
 
     private:
