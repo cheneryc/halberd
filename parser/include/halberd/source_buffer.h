@@ -3,6 +3,7 @@
 #include <deque> // std::deque
 #include <memory> // std::shared_ptr, std::make_shared
 #include <utility> // std::declval, std::pair, std::forward
+#include <exception> // std::exception
 #include <functional> // std::function
 #include <type_traits> // std::decay_t
 
@@ -41,10 +42,20 @@ namespace parser
 
         void advance(std::size_t distance)
         {
+            if (distance > _tokens.size())
+            {
+                throw std::exception();
+            }
+
             while (distance > 0U)
             {
                 --distance; _tokens.pop_front();
             }
+        }
+
+        std::size_t get_size() const noexcept
+        {
+            return _tokens.size();
         }
 
     private:
