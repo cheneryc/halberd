@@ -20,9 +20,10 @@ namespace parser
             {
                 return {};
             }
-
-            //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
-            //source.flush();
+            else
+            {
+                try_advance(source);
+            }
 
             return { result.first };
         }

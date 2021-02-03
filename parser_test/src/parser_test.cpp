@@ -149,7 +149,7 @@ TEST(parser, combinator_filter_apply_success_repeat)
 
 TEST(parser, combinator_filter_apply_success_failure)
 {
-    test_scanner scanner = { { '0', '1', '0' } };
+    test_scanner scanner = { { '0', '1' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_match_v<'0'>.apply(source);
@@ -159,9 +159,10 @@ TEST(parser, combinator_filter_apply_success_failure)
     auto res2 = test_match_v<'0'>.apply(source);
     ASSERT_FALSE(res2);
 
-    auto res3 = test_match_v<'0'>.apply(source);
+    // Ensure failing to parse didn't advance to the next token
+    auto res3 = test_match_v<'1'>.apply(source);
     ASSERT_TRUE(res3);
-    ASSERT_EQ('0', res3.get());
+    ASSERT_EQ('1', res3.get());
 }
 
 TEST(parser, combinator_transform_apply_failure)
@@ -199,7 +200,7 @@ TEST(parser, combinator_transform_apply_success_repeat)
 
 TEST(parser, combinator_transform_apply_success_failure)
 {
-    test_scanner scanner = { { 'x', 'y', 'x' } };
+    test_scanner scanner = { { 'x', 'y' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_transform_v<'x'>.apply(source);
@@ -209,9 +210,10 @@ TEST(parser, combinator_transform_apply_success_failure)
     auto res2 = test_transform_v<'x'>.apply(source);
     ASSERT_FALSE(res2);
 
-    auto res3 = test_transform_v<'x'>.apply(source);
+    // Ensure failing to parse didn't advance to the next token
+    auto res3 = test_transform_v<'y'>.apply(source);
     ASSERT_TRUE(res3);
-    ASSERT_EQ('X', res3.get());
+    ASSERT_EQ('Y', res3.get());
 }
 
 TEST(parser, combinator_choice_apply_failure)
@@ -259,9 +261,9 @@ TEST(parser, combinator_choice_apply_success_failure)
     auto res2 = parser.apply(source);
     ASSERT_FALSE(res2);
 
+    // Ensure failing to parse didn't advance to the next token
     auto res3 = parser.apply(source);
-    ASSERT_TRUE(res3);
-    ASSERT_EQ('z', res3.get());
+    ASSERT_FALSE(res3);
 }
 
 TEST(parser, combinator_sequence_apply_failure)
@@ -305,7 +307,7 @@ TEST(parser, combinator_sequence_apply_success_repeat)
 
 TEST(parser, combinator_sequence_apply_success_failure)
 {
-    test_scanner scanner = { { '1', '2', '3', 'A', 'B', 'C' } };
+    test_scanner scanner = { { '1', '2', '3', '1', '2', '1', '2', '3' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_sequence(test_match_v<'1'>, test_match_v<'2'>, test_match_v<'3'>);
@@ -316,6 +318,10 @@ TEST(parser, combinator_sequence_apply_success_failure)
 
     auto res2 = parser.apply(source);
     ASSERT_FALSE(res2);
+
+    // Ensure failing to parse didn't advance to the next token
+    auto res3 = parser.apply(source);
+    ASSERT_FALSE(res3);
 }
 
 TEST(parser, combinator_select_apply_failure)
@@ -359,7 +365,7 @@ TEST(parser, combinator_select_apply_success_repeat)
 
 TEST(parser, combinator_select_apply_success_failure)
 {
-    test_scanner scanner = { { '[', '0', ']', '[', '1', ']' } };
+    test_scanner scanner = { { '[', '0', ']', '?', '[', '0', ']' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_select<1U>(ns::make_sequence(test_match_v<'['>, test_match_v<'0'>, test_match_v<']'>));
@@ -370,4 +376,8 @@ TEST(parser, combinator_select_apply_success_failure)
 
     auto res2 = parser.apply(source);
     ASSERT_FALSE(res2);
+
+    // Ensure failing to parse didn't advance to the next token
+    auto res3 = parser.apply(source);
+    ASSERT_FALSE(res3);
 }

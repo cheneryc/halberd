@@ -19,12 +19,23 @@ namespace parser
     {
     public:
         template<typename Fn, typename Conv>
-        source_buffer(Fn fn, Conv conv) : _fn(fn), _fn_conv(conv), _tokens()
+        source_buffer(Fn fn, Conv conv) :
+            _fn(fn),
+            _fn_conv(conv),
+            _tokens(),
+            _tokens_position()
         {
         }
 
-        std::pair<R, bool> at(std::size_t offset)
+        std::pair<R, bool> at(std::size_t position)
         {
+            if (position < _tokens_position)
+            {
+                throw std::exception();
+            }
+
+            const std::size_t offset = position - _tokens_position;
+
             while (_tokens.size() <= offset)
             {
                 if (auto token = _fn())
@@ -47,10 +58,22 @@ namespace parser
                 throw std::exception();
             }
 
+            _tokens_position += distance;
+
             while (distance > 0U)
             {
                 --distance; _tokens.pop_front();
             }
+        }
+
+        void advance_to(std::size_t position)
+        {
+            if (position < _tokens_position)
+            {
+                throw std::exception();
+            }
+
+            advance(position - _tokens_position);
         }
 
         std::size_t get_size() const noexcept
@@ -61,7 +84,9 @@ namespace parser
     private:
         std::function<T()>   _fn;
         std::function<R(T&)> _fn_conv;
+
         std::deque<T> _tokens;
+        std::size_t   _tokens_position;
     };
 
     namespace detail

@@ -17,15 +17,13 @@ namespace parser
         {
             auto result = source.next();
 
+            // The parser succeeds if the source has no more tokens
             if (!result.second)
             {
-                //TODO: can't just flush like this unless the source is passed by value (i.e. not shared amongst combinators)
-                //source.flush();
-
-                return { true };
+                try_advance(source);
             }
 
-            return { false };
+            return { !result.second };
         }
     };
 

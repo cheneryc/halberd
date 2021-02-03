@@ -21,10 +21,21 @@ namespace parser
         template<typename T, typename R>
         parse_result<R> apply(source<T, R>& source) const
         {
-            auto result = combinator_one_v.apply(source);
+            halberd::parser::source<T, R> source_cpy(source, source_flags::none); // Create a copy of the source that cannot advance its buffer
 
-            if (!result || _pred(result.get()))
+            if (auto result = combinator_one_v.apply(source_cpy))
             {
+                // If the predicate returns a true value then attempt
+                // to advance the given source to the copy's position
+                if (_pred(result.get()))
+                {
+                    try_advance(source, source_cpy.get_position());
+                }
+                else
+                {
+                    return {};
+                }
+
                 return result;
             }
 
