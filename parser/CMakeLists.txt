@@ -14,6 +14,7 @@ set(HEADER include/halberd/combinator.h
            include/halberd/parse_result.h
            include/halberd/source.h
            include/halberd/source_buffer.h
+           include/halberd/util/enum_flags.h
            include/halberd/util/optional.h)
 
 set(SOURCE src/parser.cpp)

@@ -50,10 +50,14 @@ namespace parser
                 sequence_element_result_t<Idx, decltype(source)>,
                 sequence_element_result_t<Is, decltype(source)>...>
         {
-            if (auto result = apply_impl(source, std::index_sequence<Idx>()))
+            halberd::parser::source<T, R> source_cpy(source, source_flags::none); // Create a copy of the source that cannot advance its buffer
+
+            if (auto result = apply_impl(source_cpy, std::index_sequence<Idx>()))
             {
-                if (auto result_rec = apply_impl(source, std::index_sequence<Is...>()))
+                if (auto result_rec = apply_impl(source_cpy, std::index_sequence<Is...>()))
                 {
+                    try_advance(source, source_cpy.get_position());
+
                     return concat(result, result_rec);
                 }
             }

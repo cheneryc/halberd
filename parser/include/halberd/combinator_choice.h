@@ -39,26 +39,31 @@ namespace parser
         template<typename T, typename R, std::size_t Idx>
         auto apply_impl(source<T, R>& source, std::index_sequence<Idx>) const -> choice_element_result_t<0U, decltype(source)>
         {
-            if (auto result = std::get<Idx>(_parsers).apply(source))
-            {
-                return { result.get() };
-            }
+            auto result = std::get<Idx>(_parsers).apply(source);
 
-            return {};
+            if (!result)
+            {
+                return {};
+            }
+            else
+            {
+                try_advance(source);
+            }
+            
+            return result;
+            
         }
 
         // The result type is the same as the first parser type in Ps
         template<typename T, typename R, std::size_t Idx, std::size_t... Is>
         auto apply_impl(source<T, R>& source, std::index_sequence<Idx, Is...>) const -> choice_element_result_t<0U, decltype(source)>
         {
-            auto source_cpy = source; // Copy the source before modifying its state
-
             if (auto result = apply_impl(source, std::index_sequence<Idx>()))
             {
                 return result;
             }
 
-            if (auto result = apply_impl(source_cpy, std::index_sequence<Is...>()))
+            if (auto result = apply_impl(source, std::index_sequence<Is...>()))
             {
                 return result;
             }
