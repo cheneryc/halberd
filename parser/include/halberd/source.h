@@ -126,9 +126,9 @@ namespace parser
     }
 
     template<typename Fn,
-             typename Conv = detail::pass_through,
-             typename T = std::decay_t<decltype(std::declval<Fn>()())>,
-             typename R = std::decay_t<decltype(std::declval<Conv>()(std::declval<T&>()))>>
+             typename Conv = detail::decay_converter,
+             typename T = decltype(std::declval<Fn>()()),
+             typename R = decltype(std::declval<Conv>()(std::declval<T&>()))>
     source<T, R> make_source(Fn fn, Conv conv = Conv())
     {
         return { make_source_buffer(fn, conv) };

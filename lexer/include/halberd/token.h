@@ -12,7 +12,7 @@ namespace lexer
 {
     struct token
     {
-        virtual ~token() = default;
+        virtual ~token() = 0;
     };
 
     struct token_identifier : public token
