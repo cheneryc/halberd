@@ -23,6 +23,8 @@ namespace
     }
 }
 
+ns::token::~token() = default;
+
 ns::token_identifier::token_identifier(std::basic_string<char>&& identifier) : _identifier(std::move(identifier))
 {
 }

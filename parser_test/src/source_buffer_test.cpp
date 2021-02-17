@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 
 #include <memory> // std::unique_ptr, std::make_unique
-#include <functional> // std::mem_fn
 
 #include <cstddef> // std::size_t
 
@@ -29,7 +28,11 @@ namespace
             }
 
             return token;
-        }, std::mem_fn(&std::unique_ptr<int>::operator*));
+        },
+            [](std::unique_ptr<int>& int_ptr)
+        {
+            return *int_ptr;
+        });
     }
 }
 

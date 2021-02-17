@@ -91,10 +91,10 @@ namespace parser
 
     namespace detail
     {
-        struct pass_through
+        struct decay_converter
         {
             template<typename T>
-            auto operator()(T&& t) -> decltype(std::forward<T>(t))
+            auto operator()(T&& t) -> std::decay_t<T>
             {
                 return std::forward<T>(t);
             }
@@ -102,9 +102,9 @@ namespace parser
     }
 
     template<typename Fn,
-             typename Conv = detail::pass_through,
-             typename T = std::decay_t<decltype(std::declval<Fn>()())>,
-             typename R = std::decay_t<decltype(std::declval<Conv>()(std::declval<T&>()))>>
+             typename Conv = detail::decay_converter,
+             typename T = decltype(std::declval<Fn>()()),
+             typename R = decltype(std::declval<Conv>()(std::declval<T&>()))>
     std::shared_ptr<source_buffer<T, R>> make_source_buffer(Fn fn, Conv conv = Conv())
     {
         return std::make_shared<source_buffer<T, R>>(fn, conv);

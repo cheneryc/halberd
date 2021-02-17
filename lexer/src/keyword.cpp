@@ -77,6 +77,18 @@ std::pair<ns::keyword, bool> ns::to_keyword(const char* str, std::size_t length)
         case ::hash("const"):
             kw = keyword::strict_const;
             break;
+        case ::hash("i8"):
+            kw = keyword::strict_i8;
+            break;
+        case ::hash("i16"):
+            kw = keyword::strict_i16;
+            break;
+        case ::hash("i32"):
+            kw = keyword::strict_i32;
+            break;
+        case ::hash("i64"):
+            kw = keyword::strict_i64;
+            break;
         default:
             return { kw, false }; // The returned keyword value is undefined
     }
@@ -96,6 +108,18 @@ const char* ns::to_string(ns::keyword kw) noexcept
             break;
         case keyword::strict_const:
             str = "const";
+            break;
+        case keyword::strict_i8:
+            str = "i8";
+            break;
+        case keyword::strict_i16:
+            str = "i16";
+            break;
+        case keyword::strict_i32:
+            str = "i32";
+            break;
+        case keyword::strict_i64:
+            str = "i64";
             break;
     }
 

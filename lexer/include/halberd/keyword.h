@@ -2,6 +2,8 @@
 
 #include <utility> // std::pair
 
+#include <cstddef> // std::size_t
+
 
 namespace halberd
 {
@@ -13,7 +15,11 @@ namespace lexer
     enum class keyword
     {
         strict_var,
-        strict_const
+        strict_const,
+        strict_i8,
+        strict_i16,
+        strict_i32,
+        strict_i64
     };
 
     std::pair<keyword, bool> to_keyword(const char* str);
