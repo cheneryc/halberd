@@ -9,6 +9,7 @@
 #include <halberd/combinator_end.h>
 #include <halberd/combinator_filter.h>
 #include <halberd/combinator_sequence.h>
+#include <halberd/combinator_operators.h>
 
 // halberd::util
 #include <halberd/util/type.h>
@@ -46,7 +47,7 @@ namespace
         using namespace halberd;
 
         /*
-            Possible tokens are denoted by use of all caps and include:
+            Possible tokens are denoted by all caps and include:
 
             KEYWORD    - lexer::token_identifier_reserved
             IDENTIFIER - lexer::token_identifier
@@ -58,15 +59,14 @@ namespace
             <type_integer> ::= KEYWORD("i8")  |
                                KEYWORD("i16") |
                                KEYWORD("i32") |
-                               KEYWORD("i64") |
+                               KEYWORD("i64")
         */
 
-        //TODO: replace make_choice with suitable operator| overload
-        constexpr auto parser_type_integer = parser::make_choice(
-            match_keyword_v<lexer::keyword::strict_i8>,
-            match_keyword_v<lexer::keyword::strict_i16>,
-            match_keyword_v<lexer::keyword::strict_i32>,
-            match_keyword_v<lexer::keyword::strict_i64>);
+        constexpr auto parser_type_integer =
+            match_keyword_v<lexer::keyword::strict_i8>  |
+            match_keyword_v<lexer::keyword::strict_i16> |
+            match_keyword_v<lexer::keyword::strict_i32> |
+            match_keyword_v<lexer::keyword::strict_i64>;
 
         /*
             <variable_declaration> ::= KEYWORD["var"] <type_integer> IDENTIFIER

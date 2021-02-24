@@ -3,6 +3,7 @@
 #include "parse_result.h"
 
 #include <utility> // std::declval
+#include <type_traits> // std::is_base_of
 
 #include <cstddef> // std::size_t
 
@@ -25,5 +26,8 @@ namespace parser
         template<std::size_t Idx, typename P, typename TSrc>
         using apply_result_element_t = typename apply_result_element<Idx, P, TSrc>::type;
     };
+
+    template<typename T>
+    using is_combinator = std::is_base_of<combinator, T>;
 }
 }
