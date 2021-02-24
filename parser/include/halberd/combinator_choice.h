@@ -4,7 +4,7 @@
 #include "parse_result.h"
 #include "source.h"
 
-#include <tuple> // std::tuple, std::tuple_element_t
+#include <tuple> // std::tuple, std::tuple_cat, std::tuple_element_t
 #include <utility> // std::index_sequence, std::index_sequence_for
 
 #include <cstddef> // std::size_t
@@ -28,11 +28,21 @@ namespace parser
         {
         }
 
+        template<typename... Ts>
+        constexpr combinator_choice(std::tuple<Ts...> parsers) noexcept : _parsers(std::move(parsers))
+        {
+        }
+
         template<typename T, typename R>
         auto apply(source<T, R>& source) const
         {
             return apply_impl(source, std::index_sequence_for<Ps...>());
         }
+
+        template<typename... P1s, typename... P2s>
+        constexpr friend combinator_choice<P1s..., P2s...> concat(
+            combinator_choice<P1s...> choice1,
+            combinator_choice<P2s...> choice2) noexcept;
 
     private:
         // The result type is the same as the first parser type in Ps
@@ -78,6 +88,26 @@ namespace parser
     constexpr combinator_choice<Ps...> make_choice(Ps... parsers) noexcept
     {
         return { std::move(parsers)... };
+    }
+
+    template<typename... Ps>
+    constexpr combinator_choice<Ps...> make_choice(std::tuple<Ps...> parsers) noexcept
+    {
+        return { std::move(parsers) };
+    }
+
+    template<typename... Ps>
+    constexpr combinator_choice<Ps...> make_choice(combinator_choice<Ps...> choice) noexcept
+    {
+        return std::move(choice); // Pass through overload lets operator| concatenate combinator_choice parameters
+    }
+
+    template<typename... P1s, typename... P2s>
+    constexpr combinator_choice<P1s..., P2s...> concat(
+        combinator_choice<P1s...> choice1,
+        combinator_choice<P2s...> choice2) noexcept
+    {
+        return make_choice(std::tuple_cat(std::move(choice1._parsers), std::move(choice2._parsers)));
     }
 }
 }

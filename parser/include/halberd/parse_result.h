@@ -7,7 +7,7 @@
 #include <../../lexer/include/halberd/meta/dependent.h>
 
 #include <tuple> // std::tuple, std::tuple_element, std::tuple_cat, std::make_tuple
-#include <type_traits> // std::true_type, std::is_same, std::decay_t
+#include <type_traits> // std::true_type, std::is_same, std::decay_t, std::enable_if_t
 #include <utility> // std::forward, std::index_sequence
 
 #include <cstddef> // std::size_t
