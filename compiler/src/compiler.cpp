@@ -72,12 +72,11 @@ namespace
             <variable_declaration> ::= KEYWORD["var"] <type_integer> IDENTIFIER
         */
 
-        //TODO: replace make_sequence with suitable operator+ overload
-        constexpr auto parser_variable_declaration = parser::make_sequence(
-            match_keyword_v<lexer::keyword::strict_var>,
-            parser_type_integer,
-            match_identifier_v,
-            parser_end);
+        constexpr auto parser_variable_declaration =
+            match_keyword_v<lexer::keyword::strict_var> +
+            parser_type_integer +
+            match_identifier_v +
+            parser_end;
 
         return parser_variable_declaration;
     }
