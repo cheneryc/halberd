@@ -31,11 +31,21 @@ namespace parser
         {
         }
 
+        template<typename... Ts>
+        constexpr combinator_sequence(std::tuple<Ts...> parsers) noexcept : _parsers(std::move(parsers))
+        {
+        }
+
         template<typename T, typename R>
         auto apply(source<T, R>& source) const
         {
             return apply_impl(source, std::index_sequence_for<Ps...>());
         }
+
+        template<typename... P1s, typename... P2s>
+        constexpr friend combinator_sequence<P1s..., P2s...> concat(
+            combinator_sequence<P1s...> seq1,
+            combinator_sequence<P2s...> seq2) noexcept;
 
     private:
         template<typename T, typename R, std::size_t Idx>
@@ -72,6 +82,26 @@ namespace parser
     constexpr combinator_sequence<Ps...> make_sequence(Ps... parsers) noexcept
     {
         return { std::move(parsers)... };
+    }
+
+    template<typename... Ps>
+    constexpr combinator_sequence<Ps...> make_sequence(std::tuple<Ps...> parsers) noexcept
+    {
+        return { std::move(parsers) };
+    }
+
+    template<typename... Ps>
+    constexpr combinator_sequence<Ps...> make_sequence(combinator_sequence<Ps...> seq) noexcept
+    {
+        return std::move(seq); // Pass through overload lets operator+ concatenate combinator_sequence parameters
+    }
+
+    template<typename... P1s, typename... P2s>
+    constexpr combinator_sequence<P1s..., P2s...> concat(
+        combinator_sequence<P1s...> seq1,
+        combinator_sequence<P2s...> seq2) noexcept
+    {
+        return make_sequence(std::tuple_cat(std::move(seq1._parsers), std::move(seq2._parsers)));
     }
 }
 }
