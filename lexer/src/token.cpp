@@ -21,6 +21,19 @@ namespace
 
         return value;
     }
+
+    float to_integer(const std::basic_string<char>& str)
+    {
+        std::size_t str_pos = 0U;
+        const int value = std::stoi(str, &str_pos);
+
+        if (str.length() != str_pos)
+        {
+            throw std::exception();
+        }
+
+        return value;
+    }
 }
 
 ns::token::~token() = default;
@@ -34,6 +47,10 @@ ns::token_identifier_reserved::token_identifier_reserved(keyword kw) : _keyword(
 }
 
 ns::token_literal_fractional::token_literal_fractional(const std::basic_string<char>& str) : _value(::to_float(str))
+{
+}
+
+ns::token_literal_integer::token_literal_integer(const std::basic_string<char>& str) : _value(::to_integer(str))
 {
 }
 

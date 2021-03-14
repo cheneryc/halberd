@@ -52,3 +52,13 @@ TEST(compiler, variable_declaration_src_i8)
 {
     ASSERT_TRUE(ns::compile("var i8 my_var"));
 }
+
+TEST(compiler, expression)
+{
+    ASSERT_TRUE(ns::compile_expression("1.0"));
+    ASSERT_TRUE(ns::compile_expression("(1.0)"));
+    ASSERT_TRUE(ns::compile_expression("x"));
+    ASSERT_TRUE(ns::compile_expression("x y"));
+    ASSERT_TRUE(ns::compile_expression("x y z"));
+    ASSERT_TRUE(ns::compile_expression("x 1.0 (y)"));
+}

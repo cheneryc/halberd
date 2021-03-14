@@ -44,7 +44,7 @@ namespace
     constexpr auto test_match_v = ns::make_filter(is_token<Ch>);
 
     template<char Ch>
-    constexpr auto test_transform_v = ns::make_transform(is_token<Ch>, toupper);
+    constexpr auto test_transform_v = ns::make_transform(test_match_v<Ch>, toupper);
 }
 
 TEST(parser, combinator_one_apply_failure)

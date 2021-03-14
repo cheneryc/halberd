@@ -1,6 +1,8 @@
 #pragma once
 
+#include "combinator.h"
 #include "combinator_choice.h"
+#include "combinator_sequence.h"
 
 #include <type_traits> // std::enable_if_t
 
