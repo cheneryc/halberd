@@ -36,6 +36,13 @@ namespace lexer
         const float _value;
     };
 
+    struct token_literal_integer : public token
+    {
+        token_literal_integer(const std::basic_string<char>& str);
+
+        const int _value;
+    };
+
     struct token_symbol : public token
     {
         token_symbol(symbol sym);

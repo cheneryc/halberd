@@ -12,5 +12,7 @@ namespace compiler
 {
     bool compile(const char* src);
     bool compile(std::vector<std::unique_ptr<halberd::lexer::token>> tokens);
+
+    bool compile_expression(const char* src);
 }
 }

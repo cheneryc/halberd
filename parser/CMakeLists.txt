@@ -6,6 +6,7 @@ set(HEADER include/halberd/combinator.h
            include/halberd/combinator_choice.h
            include/halberd/combinator_end.h
            include/halberd/combinator_filter.h
+           include/halberd/combinator_function.h
            include/halberd/combinator_one.h
            include/halberd/combinator_select.h
            include/halberd/combinator_sequence.h
