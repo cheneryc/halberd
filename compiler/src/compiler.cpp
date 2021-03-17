@@ -101,29 +101,33 @@ namespace
         <expression_terminal> ::= IDENTIFIER | LITERAL_FRACTIONAL | LITERAL_INTEGER
      */
 
-    constexpr auto parser_expression_terminal_v = halberd::parser::make_transform(
+    constexpr auto parser_expression_terminal_v = (
         match_identifier_v |
         match_literal_fractional_v |
-        match_literal_integer_v, expression_transform());
+        match_literal_integer_v) >> expression_transform();
 
     /*
         <expression_parentheses> ::= SYMBOL('(') <expression> SYMBOL(')')
      */
 
     template<typename T, typename R>
-    constexpr auto parser_expression_parentheses_v = halberd::parser::make_select<1U>(
+    constexpr auto parser_expression_parentheses_v =
         match_symbol_v<halberd::lexer::symbol::bracket_round_open> +
         parser_expression_v<T, R> +
-        match_symbol_v<halberd::lexer::symbol::bracket_round_close>);
+        match_symbol_v<halberd::lexer::symbol::bracket_round_close>;
 
     // Parser function definitions
+
+    /*
+        <expression> ::= <expression_terminal> | <expression_parentheses>
+     */
 
     template<typename T, typename R>
     constexpr halberd::parser::parse_result<expression> parse_expression(halberd::parser::source<T, R>& source)
     {
-        constexpr auto parser_expression_primary = halberd::parser::make_transform(
+        constexpr auto parser_expression_primary = (
             parser_expression_terminal_v |
-            parser_expression_parentheses_v<T, R>, expression_transform());
+            parser_expression_parentheses_v<T, R>[halberd::parser::index_tag_v<1U>]) >> expression_transform();
 
         return parser_expression_primary.apply(source);
     }

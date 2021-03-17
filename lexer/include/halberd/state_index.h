@@ -22,7 +22,7 @@ namespace lexer
     struct state_index_self_tag
     {
     };
-    
+
     // Variables
 
     template<state_index_t Idx>
