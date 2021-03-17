@@ -1,6 +1,8 @@
 #pragma once
 
 #include "combinator.h"
+#include "combinator_select.h"
+#include "index_tag.h"
 #include "parse_result.h"
 #include "source.h"
 
@@ -40,6 +42,18 @@ namespace parser
         auto apply(source<T, R>& source) const
         {
             return apply_impl(source, std::index_sequence_for<Ps...>());
+        }
+
+        template<std::size_t Idx>
+        constexpr auto operator[](index_tag<Idx>) && noexcept
+        {
+            return make_select<Idx>(std::move(*this));
+        }
+
+        template<std::size_t Idx>
+        constexpr auto operator[](index_tag<Idx>) const & noexcept
+        {
+            return make_select<Idx>(*this);
         }
 
         template<typename... P1s, typename... P2s>

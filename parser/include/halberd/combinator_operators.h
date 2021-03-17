@@ -3,7 +3,9 @@
 #include "combinator.h"
 #include "combinator_choice.h"
 #include "combinator_sequence.h"
+#include "combinator_transform.h"
 
+#include <utility> // std::forward
 #include <type_traits> // std::enable_if_t
 
 
@@ -33,6 +35,12 @@ namespace parser
         auto seq2 = make_sequence(std::move(p2));
 
         return concat(std::move(seq1), std::move(seq2));
+    }
+
+    template<typename P, typename Fn, typename = std::enable_if_t<is_combinator<P>::value>>
+    constexpr auto operator>>(P&& parser, Fn fn) noexcept
+    {
+        return make_transform(std::forward<P>(parser), std::move(fn));
     }
 }
 }

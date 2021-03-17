@@ -12,6 +12,7 @@ set(HEADER include/halberd/combinator.h
            include/halberd/combinator_sequence.h
            include/halberd/combinator_transform.h
            include/halberd/combinator_operators.h
+           include/halberd/index_tag.h
            include/halberd/parser.h
            include/halberd/parse_result.h
            include/halberd/source.h
