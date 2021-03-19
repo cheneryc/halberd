@@ -93,7 +93,7 @@ namespace
     constexpr halberd::parser::parse_result<expression> parse_expression(halberd::parser::source<T, R>& source);
 
     template<typename T, typename R>
-    constexpr auto parser_expression_v = halberd::parser::make_function(&parse_expression<T, R>);
+    constexpr auto parser_expression_v = halberd::parser::combinator_function_v<decltype(parse_expression<T, R>), &parse_expression<T, R>>;
 
     // Parser rules
 
@@ -136,7 +136,10 @@ namespace
 
     constexpr auto make_parser_expression()
     {
-        return halberd::parser::make_function(&parse_expression<std::unique_ptr<halberd::lexer::token>, halberd::lexer::token*>);
+        using token_t = std::unique_ptr<halberd::lexer::token>;
+        using token_ptr_t = halberd::lexer::token*;
+
+        return halberd::parser::combinator_function_v<decltype(parse_expression<token_t, token_ptr_t>), &parse_expression<token_t, token_ptr_t>>;
     }
 
     constexpr auto make_parser()
