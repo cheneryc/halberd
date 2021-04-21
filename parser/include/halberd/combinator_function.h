@@ -11,9 +11,8 @@ namespace halberd
 namespace parser
 {
     template<typename Fn, std::decay_t<Fn> fn>
-    class combinator_function : public combinator
+    struct combinator_function : combinator
     {
-    public:
         template<typename T, typename R>
         auto apply(source<T, R>& source) const
         {
@@ -22,6 +21,6 @@ namespace parser
     };
 
     template<typename Fn, std::decay_t<Fn> fn>
-    class combinator_function<Fn, fn> combinator_function_v;
+    constexpr combinator_function<Fn, fn> combinator_function_v;
 }
 }

@@ -2,7 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <deque>
+#include <deque> // std::deque
+#include <tuple> // std::tuple, std::make_tuple
 
 
 namespace
@@ -40,11 +41,16 @@ namespace
         return ch - ('a' - 'A'); // std::toupper isn't constexpr
     }
 
+    constexpr char toupper_transform(std::tuple<char> ch) noexcept
+    {
+        return toupper(std::get<0U>(ch));
+    }
+
     template<char Ch>
     constexpr auto test_match_v = ns::make_filter(is_token<Ch>);
 
     template<char Ch>
-    constexpr auto test_transform_v = ns::make_transform(test_match_v<Ch>, toupper);
+    constexpr auto test_transform_v = ns::make_transform(test_match_v<Ch>, toupper_transform);
 }
 
 TEST(parser, combinator_one_apply_failure)

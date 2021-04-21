@@ -54,6 +54,17 @@ namespace parser
         {
         }
 
+        // Allow class template instantiations with different template parameters to access
+        // this instantiations's private members from within the covariant move constructor
+        template<typename... Us>
+        template<typename... Vs>
+        friend parse_result<Us...>::parse_result(parse_result<Vs...>&&);
+
+        template<typename... Us>
+        parse_result(parse_result<Us...>&& other) : _values(std::move(other._values))
+        {
+        }
+
         template<std::size_t N>
         constexpr auto& get()
         {
@@ -110,6 +121,17 @@ namespace parser
         }
 
         parse_result(const T& value) : _value(value)
+        {
+        }
+
+        // Allow class template instantiations with a different template parameter to access
+        // this instantiations's private members from within the covariant move constructor
+        template<typename U>
+        template<typename V>
+        friend parse_result<U>::parse_result(parse_result<V>&&);
+
+        template<typename U>
+        parse_result(parse_result<U>&& other) : _value(std::move(other._value))
         {
         }
 

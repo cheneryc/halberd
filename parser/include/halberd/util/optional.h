@@ -24,6 +24,60 @@ namespace util
         {
         }
 
+        optional(optional&& other) : _value_default(), _has_value(other._has_value)
+        {
+            if (other._has_value)
+            {
+                // _value_default is trivially destructible so no need to explicitly call the destructor here
+                // _value requires explicit constructor call (via placement new) to activate the member
+                new (&_value) T(std::move(other._value)); // A moved-from optional still contains a value, but the value itself is moved-from
+            }
+        }
+
+        optional(const optional& other) : _value_default(), _has_value(other._has_value)
+        {
+            if (other._has_value)
+            {
+                // _value_default is trivially destructible so no need to explicitly call the destructor here
+                // _value requires explicit constructor call (via placement new) to activate the member
+                new (&_value) T(other._value);
+            }
+        }
+
+        // Allow class template instantiations with a different template parameter to access
+        // this instantiations's private members from within the covariant move constructor
+        template<typename U>
+        template<typename V>
+        friend optional<U>::optional(optional<V>&&);
+
+        template<typename U>
+        optional(optional<U>&& other) : _value_default(), _has_value(other._has_value)
+        {
+            if (other._has_value)
+            {
+                // _value_default is trivially destructible so no need to explicitly call the destructor here
+                // _value requires explicit constructor call (via placement new) to activate the member
+                new (&_value) T(std::move(other._value)); // A moved-from optional still contains a value, but the value itself is moved-from
+            }
+        }
+
+        // Allow class template instantiations with a different template parameter to access
+        // this instantiations's private members from within the covariant move constructor
+        template<typename U>
+        template<typename V>
+        friend optional<U>::optional(const optional<V>&);
+
+        template<typename U>
+        optional(const optional<U>& other) : _value_default(), _has_value(other._has_value)
+        {
+            if (other._has_value)
+            {
+                // _value_default is trivially destructible so no need to explicitly call the destructor here
+                // _value requires explicit constructor call (via placement new) to activate the member
+                new (&_value) T(other._value);
+            }
+        }
+
         ~optional() noexcept
         {
             if (_has_value)
