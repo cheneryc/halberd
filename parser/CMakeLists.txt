@@ -3,6 +3,7 @@ project(halberd_parser)
 set(INCLUDE include)
 
 set(HEADER include/halberd/combinator.h
+           include/halberd/combinator_any.h
            include/halberd/combinator_choice.h
            include/halberd/combinator_end.h
            include/halberd/combinator_filter.h

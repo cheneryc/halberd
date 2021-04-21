@@ -82,7 +82,7 @@ namespace parser
                 {
                     try_advance(source, source_cpy.get_position());
 
-                    return concat(result, result_rec);
+                    return concat(std::move(result), std::move(result_rec));
                 }
             }
 

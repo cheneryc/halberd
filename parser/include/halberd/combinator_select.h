@@ -24,7 +24,7 @@ namespace parser
         {
             if (auto result = _parser.apply(source))
             {
-                return { result.template get<Idx>() };
+                return { std::move(result.template get<Idx>()) };
             }
 
             return {};

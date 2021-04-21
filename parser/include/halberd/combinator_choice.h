@@ -59,9 +59,8 @@ namespace parser
             {
                 try_advance(source);
             }
-            
+
             return result;
-            
         }
 
         // The result type is the same as the first parser type in Ps

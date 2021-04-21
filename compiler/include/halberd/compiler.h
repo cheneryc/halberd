@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rule.h"
+
 #include <halberd/token.h>
 
 #include <memory> // std::unique_ptr
@@ -10,9 +12,12 @@ namespace halberd
 {
 namespace compiler
 {
+    //TODO: return type should be parse_result<std::unique_ptr<syntax::tree>>
     bool compile(const char* src);
-    bool compile(std::vector<std::unique_ptr<halberd::lexer::token>> tokens);
+    bool compile(std::vector<std::unique_ptr<lexer::token>> tokens);
 
-    bool compile_expression(const char* src);
+    //TODO: return type should be parse_result<std::unique_ptr<syntax::node>>
+    bool compile_rule(rule r, const char* src);
+    bool compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens);
 }
 }

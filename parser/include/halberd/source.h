@@ -7,7 +7,6 @@
 #include <memory> // std::shared_ptr
 #include <utility> // std::declval, std::pair
 #include <exception> // std::exception
-#include <type_traits> // std::decay_t
 
 #include <cstddef> // std::size_t
 

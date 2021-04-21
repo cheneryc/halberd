@@ -36,6 +36,11 @@ namespace
 
         return tokens;
     }
+
+    auto compile_expression(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression, src);
+    }
 }
 
 TEST(compiler, variable_declaration_i8)
@@ -55,10 +60,10 @@ TEST(compiler, variable_declaration_src_i8)
 
 TEST(compiler, expression)
 {
-    ASSERT_TRUE(ns::compile_expression("1.0"));
-    ASSERT_TRUE(ns::compile_expression("(1.0)"));
-    ASSERT_TRUE(ns::compile_expression("x"));
-    ASSERT_TRUE(ns::compile_expression("x y"));
-    ASSERT_TRUE(ns::compile_expression("x y z"));
-    ASSERT_TRUE(ns::compile_expression("x 1.0 (y)"));
+    ASSERT_TRUE(compile_expression("1.0"));
+    ASSERT_TRUE(compile_expression("(1.0)"));
+    ASSERT_TRUE(compile_expression("x"));
+    ASSERT_TRUE(compile_expression("x y"));
+    ASSERT_TRUE(compile_expression("x y z"));
+    ASSERT_TRUE(compile_expression("x 1.0 (y)"));
 }
