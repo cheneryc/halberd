@@ -50,10 +50,22 @@ namespace parser
             return make_select<Idx>(std::move(*this));
         }
 
+        template<std::size_t... Is>
+        constexpr auto operator[](index_sequence_tag<Is...>) && noexcept
+        {
+            return make_select<Is...>(std::move(*this));
+        }
+
         template<std::size_t Idx>
         constexpr auto operator[](index_tag<Idx>) const & noexcept
         {
             return make_select<Idx>(*this);
+        }
+
+        template<std::size_t... Is>
+        constexpr auto operator[](index_sequence_tag<Is...>) const & noexcept
+        {
+            return make_select<Is...>(*this);
         }
 
         template<typename... P1s, typename... P2s>

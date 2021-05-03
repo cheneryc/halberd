@@ -37,9 +37,9 @@ namespace compiler
      */
 
     constexpr auto parser_expression_terminal_v = (
-        match_identifier_v |
-        match_literal_fractional_v |
-        match_literal_integer_v) >> syntax::expression_transform();
+        filter_identifier_v |
+        filter_literal_fractional_v |
+        filter_literal_integer_v) >> syntax::expression_transform();
 
     /*
         <expression_parentheses> ::= SYMBOL('(') <expression> SYMBOL(')')

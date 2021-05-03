@@ -2,8 +2,7 @@
 
 #include "node.h"
 
-#include <memory> // std::unique_ptr
-#include <tuple> // std::tuple
+#include <string>
 
 
 namespace halberd
@@ -12,15 +11,10 @@ namespace syntax
 {
     class variable_declaration : public node
     {
-    };
+    public:
+        variable_declaration(std::string name);
 
-    struct variable_declaration_transform
-    {
-        template<typename T>
-        std::unique_ptr<variable_declaration> operator()(std::tuple<T, T, T> t) const
-        {
-            return {}; //TODO: implement this transform
-        }
+        const std::string name;
     };
 }
 }
