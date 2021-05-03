@@ -171,16 +171,24 @@ namespace parser
     template<std::size_t Idx, typename T>
     using parse_result_element_t = typename parse_result_element<Idx, T>::type;
 
-    // Variadic operations
-
     namespace detail
     {
         template<typename... Ts, std::size_t... Is>
-        parse_result<Ts...> parse_result_from_tuple(std::tuple<Ts...>&& values, std::index_sequence<Is...>)
+        auto parse_result_from_tuple(std::tuple<Ts...>&& values, std::index_sequence<Is...>) -> parse_result<std::tuple_element_t<Is, std::tuple<Ts...>>...>
         {
-            return { std::move(std::get<Is>(values))... };
+            return { std::get<Is>(std::move(values))... };
         }
     }
+
+    // Unary operations
+
+    template<typename... Ts, std::size_t... Is>
+    auto select(parse_result<Ts...> result, std::index_sequence<Is...>)
+    {
+        return detail::parse_result_from_tuple(get_as_tuple(std::move(result)), std::index_sequence<Is...>());
+    }
+
+    // Variadic operations
 
     template<typename... T1s, typename... T2s>
     auto concat(parse_result<T1s...> result1, parse_result<T2s...> result2) -> parse_result<T1s..., T2s...>

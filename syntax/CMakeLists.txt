@@ -10,7 +10,8 @@ set(HEADER include/halberd/expression.h
 
 set(SOURCE src/expression.cpp
            src/node.cpp
-           src/tree.cpp)
+           src/tree.cpp
+           src/variable_declaration.cpp)
 
 add_library(halberd_syntax STATIC ${SOURCE} ${HEADER})
 
