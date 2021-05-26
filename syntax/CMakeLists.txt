@@ -4,12 +4,14 @@ set(INCLUDE include)
 
 set(HEADER include/halberd/expression.h
            include/halberd/node.h
+           include/halberd/operator_unary_postfix.h
            include/halberd/tree.h
            include/halberd/tree_test.h
            include/halberd/variable_declaration.h)
 
 set(SOURCE src/expression.cpp
            src/node.cpp
+           src/operator_unary_postfix.cpp
            src/tree.cpp
            src/variable_declaration.cpp)
 

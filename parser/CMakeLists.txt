@@ -9,6 +9,8 @@ set(HEADER include/halberd/combinator.h
            include/halberd/combinator_filter.h
            include/halberd/combinator_function.h
            include/halberd/combinator_one.h
+           include/halberd/combinator_optional.h
+           include/halberd/combinator_repeat.h
            include/halberd/combinator_select.h
            include/halberd/combinator_sequence.h
            include/halberd/combinator_transform.h

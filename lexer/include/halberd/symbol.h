@@ -10,8 +10,10 @@ namespace lexer
     enum class symbol
     {
         // Operators
-        op_add,    // '+'
-        op_assign, // '='
+        op_add,       // '+'
+        op_assign,    // '='
+        op_increment, // '++'
+        op_decrement, // '--'
 
         // Parentheses
         bracket_round_open,  // '('

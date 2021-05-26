@@ -26,6 +26,8 @@ namespace compiler
         LITERAL_FRACTIONAL - lexer::token_literal_fractional
         LITERAL_INTEGER    - lexer::token_literal_integer
         SYMBOL             - lexer::token_symbol
+
+        E represents the empty string
      */
 
     constexpr auto parser_end_v = parser::combinator_end_v;

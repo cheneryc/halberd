@@ -265,5 +265,53 @@ namespace parser
     {
         return { result.get() };
     }
+
+    template<typename... Ts>
+    std::tuple<Ts...> get_value(parse_result<Ts...>&& result)
+    {
+        return get_as_tuple(std::move(result));
+    }
+
+    template<typename... Ts>
+    std::tuple<Ts...> get_value(const parse_result<Ts...>& result)
+    {
+        return get_as_tuple(result);
+    }
+
+    // Explicit specialization for zero template parameters
+    template<>
+    inline std::tuple<> get_value<>(parse_result<>&& result)
+    {
+        return {};
+    }
+
+    // Explicit specialization for zero template parameters
+    template<>
+    inline std::tuple<> get_value<>(const parse_result<>& result)
+    {
+        return {};
+    }
+
+    // Function overload (not a specialization) for one template parameter
+    template<typename T>
+    T get_value(parse_result<T>&& result)
+    {
+        return std::move(result.get());
+    }
+
+    // Function overload (not a specialization) for one template parameter
+    template<typename T>
+    T get_value(const parse_result<T>& result)
+    {
+        return result.get();
+    }
+
+    // Utilities
+
+    template<typename... Ts>
+    constexpr auto get_size(const parse_result<Ts...>& result) noexcept
+    {
+        return sizeof...(Ts);
+    }
 }
 }
