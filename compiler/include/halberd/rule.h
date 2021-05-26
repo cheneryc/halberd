@@ -18,6 +18,7 @@ namespace halberd
 {
 namespace compiler
 {
+    //TODO: add rule for expression_postfix and update relevant unit tests to use it
     enum class rule
     {
         expression,

@@ -19,7 +19,7 @@ namespace syntax
         template<typename T>
         std::unique_ptr<expression> operator()(std::tuple<T> t) const
         {
-            return {}; //TODO: implement this transform
+            return std::make_unique<expression>();
         }
     };
 }
