@@ -1,40 +1,15 @@
+#include "combinator_test_common.h"
+
 #include <halberd/parser.h>
 
 #include <gtest/gtest.h>
 
-#include <deque> // std::deque
 #include <tuple> // std::tuple, std::make_tuple
 
 
 namespace
 {
     namespace ns = halberd::parser;
-
-    struct test_scanner
-    {
-        using token_type = char;
-
-        token_type scan()
-        {
-            token_type token = {};
-            
-            if (tokens.size() > 0U)
-            {
-                token = std::move(tokens.front());
-                tokens.pop_front();
-            }
-
-            return token;
-        }
-
-        std::deque<token_type> tokens;
-    };
-
-    template<char Ch>
-    constexpr bool is_token(char ch) noexcept
-    {
-        return Ch == ch;
-    }
 
     constexpr char toupper(char ch) noexcept
     {
@@ -47,7 +22,7 @@ namespace
     }
 
     template<char Ch>
-    constexpr auto test_match_v = ns::make_filter(is_token<Ch>);
+    constexpr auto test_match_v = ns::make_filter(test::is_token<Ch>);
 
     template<char Ch>
     constexpr auto test_transform_v = ns::make_transform(test_match_v<Ch>, toupper_transform);
@@ -55,7 +30,7 @@ namespace
 
 TEST(parser, combinator_one_apply_failure)
 {
-    test_scanner scanner = {};
+    test::scanner scanner = {};
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     ns::combinator_one cb_one;
@@ -66,7 +41,7 @@ TEST(parser, combinator_one_apply_failure)
 
 TEST(parser, combinator_one_apply_success)
 {
-    test_scanner scanner = { { 'a' } };
+    test::scanner scanner = { { 'a' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     ns::combinator_one cb_one;
@@ -81,7 +56,7 @@ TEST(parser, combinator_one_apply_success)
 
 TEST(parser, combinator_one_apply_success_repeat)
 {
-    test_scanner scanner = { { 'a', 'b' } };
+    test::scanner scanner = { { 'a', 'b' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     ns::combinator_one cb_one;
@@ -100,7 +75,7 @@ TEST(parser, combinator_one_apply_success_repeat)
 
 TEST(parser, combinator_end_apply_failure)
 {
-    test_scanner scanner = { { 'a' } };
+    test::scanner scanner = { { 'a' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     ns::combinator_end cb_end;
@@ -111,7 +86,7 @@ TEST(parser, combinator_end_apply_failure)
 
 TEST(parser, combinator_end_apply_success)
 {
-    test_scanner scanner = {};
+    test::scanner scanner = {};
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     ns::combinator_end cb_end;
@@ -122,7 +97,7 @@ TEST(parser, combinator_end_apply_success)
 
 TEST(parser, combinator_filter_apply_failure)
 {
-    test_scanner scanner = { { '!' } };
+    test::scanner scanner = { { '!' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res = test_match_v<'?'>.apply(source);
@@ -131,7 +106,7 @@ TEST(parser, combinator_filter_apply_failure)
 
 TEST(parser, combinator_filter_apply_success)
 {
-    test_scanner scanner = { { 'a' } };
+    test::scanner scanner = { { 'a' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res = test_match_v<'a'>.apply(source);
@@ -141,7 +116,7 @@ TEST(parser, combinator_filter_apply_success)
 
 TEST(parser, combinator_filter_apply_success_repeat)
 {
-    test_scanner scanner = { { 'a', 'b' } };
+    test::scanner scanner = { { 'a', 'b' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_match_v<'a'>.apply(source);
@@ -155,7 +130,7 @@ TEST(parser, combinator_filter_apply_success_repeat)
 
 TEST(parser, combinator_filter_apply_success_failure)
 {
-    test_scanner scanner = { { '0', '1' } };
+    test::scanner scanner = { { '0', '1' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_match_v<'0'>.apply(source);
@@ -173,7 +148,7 @@ TEST(parser, combinator_filter_apply_success_failure)
 
 TEST(parser, combinator_transform_apply_failure)
 {
-    test_scanner scanner = { { '!' } };
+    test::scanner scanner = { { '!' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res = test_transform_v<'?'>.apply(source);
@@ -182,7 +157,7 @@ TEST(parser, combinator_transform_apply_failure)
 
 TEST(parser, combinator_transform_apply_success)
 {
-    test_scanner scanner = { { 'a' } };
+    test::scanner scanner = { { 'a' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res = test_transform_v<'a'>.apply(source);
@@ -192,7 +167,7 @@ TEST(parser, combinator_transform_apply_success)
 
 TEST(parser, combinator_transform_apply_success_repeat)
 {
-    test_scanner scanner = { { 'a', 'b' } };
+    test::scanner scanner = { { 'a', 'b' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_transform_v<'a'>.apply(source);
@@ -206,7 +181,7 @@ TEST(parser, combinator_transform_apply_success_repeat)
 
 TEST(parser, combinator_transform_apply_success_failure)
 {
-    test_scanner scanner = { { 'x', 'y' } };
+    test::scanner scanner = { { 'x', 'y' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     auto res1 = test_transform_v<'x'>.apply(source);
@@ -224,7 +199,7 @@ TEST(parser, combinator_transform_apply_success_failure)
 
 TEST(parser, combinator_choice_apply_failure)
 {
-    test_scanner scanner = { { '!' } };
+    test::scanner scanner = { { '!' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_choice(test_match_v<'('>, test_match_v<')'>);
@@ -235,7 +210,7 @@ TEST(parser, combinator_choice_apply_failure)
 
 TEST(parser, combinator_choice_apply_success)
 {
-    test_scanner scanner = { { 'a', 'b', 'c' } };
+    test::scanner scanner = { { 'a', 'b', 'c' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_choice(test_match_v<'a'>, test_match_v<'b'>, test_match_v<'c'>);
@@ -255,7 +230,7 @@ TEST(parser, combinator_choice_apply_success)
 
 TEST(parser, combinator_choice_apply_success_failure)
 {
-    test_scanner scanner = { { 'x', 'y', 'z' } };
+    test::scanner scanner = { { 'x', 'y', 'z' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_choice(test_match_v<'x'>, test_match_v<'z'>);
@@ -274,7 +249,7 @@ TEST(parser, combinator_choice_apply_success_failure)
 
 TEST(parser, combinator_sequence_apply_failure)
 {
-    test_scanner scanner = { { '1', '2', '3' } };
+    test::scanner scanner = { { '1', '2', '3' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_sequence(test_match_v<'1'>, test_match_v<'2'>, test_match_v<'3'>, test_match_v<'4'>);
@@ -285,7 +260,7 @@ TEST(parser, combinator_sequence_apply_failure)
 
 TEST(parser, combinator_sequence_apply_success)
 {
-    test_scanner scanner = { { '1', '2', '3', '4' } };
+    test::scanner scanner = { { '1', '2', '3', '4' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_sequence(test_match_v<'1'>, test_match_v<'2'>, test_match_v<'3'>, test_match_v<'4'>);
@@ -297,7 +272,7 @@ TEST(parser, combinator_sequence_apply_success)
 
 TEST(parser, combinator_sequence_apply_success_repeat)
 {
-    test_scanner scanner = { { '1', '2', '3', '1', '2', '3' } };
+    test::scanner scanner = { { '1', '2', '3', '1', '2', '3' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_sequence(test_match_v<'1'>, test_match_v<'2'>, test_match_v<'3'>);
@@ -313,7 +288,7 @@ TEST(parser, combinator_sequence_apply_success_repeat)
 
 TEST(parser, combinator_sequence_apply_success_failure)
 {
-    test_scanner scanner = { { '1', '2', '3', '1', '2', '1', '2', '3' } };
+    test::scanner scanner = { { '1', '2', '3', '1', '2', '1', '2', '3' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_sequence(test_match_v<'1'>, test_match_v<'2'>, test_match_v<'3'>);
@@ -332,7 +307,7 @@ TEST(parser, combinator_sequence_apply_success_failure)
 
 TEST(parser, combinator_select_apply_failure)
 {
-    test_scanner scanner = { { 'A', 'B', 'A' } };
+    test::scanner scanner = { { 'A', 'B', 'A' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_select<1U>(ns::make_sequence(test_match_v<'B'>, test_match_v<'A'>, test_match_v<'B'>));
@@ -343,7 +318,7 @@ TEST(parser, combinator_select_apply_failure)
 
 TEST(parser, combinator_select_apply_success)
 {
-    test_scanner scanner = { { '(', '*', ')' } };
+    test::scanner scanner = { { '(', '*', ')' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_select<1U>(ns::make_sequence(test_match_v<'('>, test_match_v<'*'>, test_match_v<')'>));
@@ -355,7 +330,7 @@ TEST(parser, combinator_select_apply_success)
 
 TEST(parser, combinator_select_apply_success_repeat)
 {
-    test_scanner scanner = { { '$', '&', '$', '&' } };
+    test::scanner scanner = { { '$', '&', '$', '&' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_select<0U>(ns::make_sequence(test_match_v<'$'>, test_match_v<'&'>));
@@ -371,7 +346,7 @@ TEST(parser, combinator_select_apply_success_repeat)
 
 TEST(parser, combinator_select_apply_success_failure)
 {
-    test_scanner scanner = { { '[', '0', ']', '?', '[', '0', ']' } };
+    test::scanner scanner = { { '[', '0', ']', '?', '[', '0', ']' } };
     auto source = ns::make_source([&scanner](){ return scanner.scan(); });
 
     constexpr auto parser = ns::make_select<1U>(ns::make_sequence(test_match_v<'['>, test_match_v<'0'>, test_match_v<']'>));
