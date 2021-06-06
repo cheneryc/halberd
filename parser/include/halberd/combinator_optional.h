@@ -32,7 +32,10 @@ namespace parser
         };
 
         template<typename TSrc>
-        using optional_result_t = parse_result<typename optional_value<apply_result_t<P, TSrc>>::type>;
+        using optional_result_value_t = typename optional_value<apply_result_t<P, TSrc>>::type;
+
+        template<typename TSrc>
+        using optional_result_t = parse_result<optional_result_value_t<TSrc>>;
 
     public:
         constexpr combinator_optional(P parser) noexcept : _parser(std::move(parser))
@@ -44,7 +47,7 @@ namespace parser
         {
             if (auto result = _parser.apply(source))
             {
-                return { { get_as_tuple(std::move(result)) } };
+                return { { get_value(std::move(result)) } };
             }
 
             return { {} }; // Construct a 'success' parse_result containing an empty util::optional

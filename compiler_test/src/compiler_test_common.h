@@ -1,3 +1,5 @@
+#pragma once
+
 #include <halberd/compiler.h>
 
 #include <iterator> // std::begin, std::end, std::make_move_iterator
