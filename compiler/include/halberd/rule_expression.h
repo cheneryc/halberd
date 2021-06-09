@@ -126,12 +126,18 @@ namespace compiler
         return parser_expression_postfix_v<T, R>.apply(source);
     }
 
-    // Parser factory
+    // Parser factories
 
     template<typename T, typename R>
     constexpr auto make_parser_expression()
     {
         return parser::combinator_function_v<decltype(parse_expression<T, R>), &parse_expression<T, R>> + parser_end_v;
+    }
+
+    template<typename T, typename R>
+    constexpr auto make_parser_expression_postfix()
+    {
+        return parser_expression_postfix_v<T, R> + parser_end_v;
     }
 }
 }

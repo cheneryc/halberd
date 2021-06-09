@@ -18,10 +18,10 @@ namespace halberd
 {
 namespace compiler
 {
-    //TODO: add rule for expression_postfix and update relevant unit tests to use it
     enum class rule
     {
         expression,
+        expression_postfix,
         variable_declaration
     };
 
@@ -32,6 +32,8 @@ namespace compiler
         {
             case rule::expression:
                 return make_parser_expression<T, R>();
+            case rule::expression_postfix:
+                return make_parser_expression_postfix<T, R>();
             case rule::variable_declaration:
                 return make_parser_variable_declaration();
         }

@@ -251,3 +251,21 @@ TEST(source_buffer, advance_distance_greater)
     fn(4);
     fn(8);
 }
+
+TEST(source_buffer, exhausted)
+{
+    std::size_t count = 0;
+
+    auto sb = ns::make_source_buffer([&count]() mutable
+    {
+        ++count; return 0U;
+    });
+
+    const auto res1 = sb->at(0U); // Attempt to generate a single token (the _is_exhausted flag should be set)
+    ASSERT_FALSE(res1.second);
+
+    const auto res2 = sb->at(0U); // Attempt to generate a single token (does nothing as the _is_exhausted flag is set)
+    ASSERT_FALSE(res2.second);
+
+    ASSERT_EQ(1U, count); // Ensure the token factory function was only called once
+}

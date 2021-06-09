@@ -82,6 +82,40 @@ TEST(scan, scan_symbol_add)
     }
 }
 
+TEST(scan, scan_symbol_increment)
+{
+    const ns::symbol expected_symbol = ns::symbol::op_increment;
+
+    {
+        const auto tokens = ns::scan(ns::get_smv_union(), "++");
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan(ns::get_smv_union(), " ++"); // leading whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan(ns::get_smv_union(), "++ "); // trailing whitespace should be ignored
+
+        ASSERT_EQ(1U, tokens.size());
+        ASSERT_EQ(expected_symbol, dynamic_cast<const ns::token_symbol&>(*tokens.front())._symbol);
+    }
+
+    {
+        const auto tokens = ns::scan(ns::get_smv_union(), "+ +"); // separating whitespace should not be ignored
+
+        ASSERT_EQ(2U, tokens.size());
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[0U])._symbol);
+        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1U])._symbol);
+    }
+}
+
 TEST(scan, scan_identifier_character)
 {
     const char expected_id[] = "a";

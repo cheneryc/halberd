@@ -8,11 +8,48 @@
 #include <halberd/source.h>
 
 #include <iterator> // std::make_move_iterator
+#include <type_traits> // std::underlying_type_t
 
 
 namespace
 {
     namespace ns = halberd::compiler;
+
+    std::string debug_token(halberd::lexer::token* token)
+    {
+        std::stringstream ss;
+
+        if (!token)
+        {
+            ss << "NULL";
+        }
+        else if (auto token_id = dynamic_cast<halberd::lexer::token_identifier*>(token))
+        {
+            ss << "IDENTIFIER, " << token_id->_identifier;
+        }
+        else if (auto token_res = dynamic_cast<halberd::lexer::token_identifier_reserved*>(token))
+        {
+            ss << "KEYWORD, " << static_cast<std::underlying_type_t<halberd::lexer::keyword>>(token_res->_keyword);
+        }
+        else if (auto token_frac = dynamic_cast<halberd::lexer::token_literal_fractional*>(token))
+        {
+            ss << "FRACTIONAL, " << token_frac->_value;
+        }
+        else if (auto token_int = dynamic_cast<halberd::lexer::token_literal_integer*>(token))
+        {
+            ss << "INTEGER, " << token_int->_value;
+        }
+        else if (auto token_sym = dynamic_cast<halberd::lexer::token_symbol*>(token))
+        {
+            ss << "SYMBOL, " << static_cast<std::underlying_type_t<halberd::lexer::symbol>>(token_sym->_symbol);
+        }
+        else
+        {
+            ss << "UNKNOWN";
+        }
+
+        return ss.str();
+    }
 }
 
 bool ns::compile(const char* src)

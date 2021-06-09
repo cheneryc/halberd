@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream> // std::basic_istringstream
 #include <utility> // std::pair
 
 
@@ -11,6 +12,7 @@ namespace lexer
     {
         // Operators
         op_add,       // '+'
+        op_subtract,  // '-'
         op_assign,    // '='
         op_increment, // '++'
         op_decrement, // '--'
@@ -24,6 +26,6 @@ namespace lexer
         bracket_curly_close, // '}'
     };
 
-    std::pair<symbol, bool> to_symbol(char ch);
+    std::pair<symbol, bool> to_symbol(char ch, std::istringstream& ss);
 }
 }

@@ -18,6 +18,16 @@ namespace
     {
         return ns::compile_rule(ns::rule::expression, std::move(tokens));
     }
+
+    auto compile_expression_postfix(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression_postfix, src);
+    }
+
+    auto compile_expression_postfix(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
+    {
+        return ns::compile_rule(ns::rule::expression_postfix, std::move(tokens));
+    }
 }
 
 TEST(expression, expression_primary)
@@ -37,7 +47,7 @@ TEST(expression, expression_postfix_inc_passthrough)
     auto tokens = make_tokens(
         make_identifier("my_var"));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_inc)
@@ -48,7 +58,7 @@ TEST(expression, expression_postfix_inc)
         make_identifier("my_var"),
         make_symbol(halberd::lexer::symbol::op_increment));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_inc_multiple)
@@ -60,13 +70,12 @@ TEST(expression, expression_postfix_inc_multiple)
         make_symbol(halberd::lexer::symbol::op_increment),
         make_symbol(halberd::lexer::symbol::op_increment));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_inc_src)
 {
-    //TODO: requires lexer support for multi-character symbols
-    //ASSERT_TRUE(compile_expression("my_var++"));
+    ASSERT_TRUE(compile_expression_postfix("my_var++"));
 }
 
 TEST(expression, expression_postfix_dec_passthrough)
@@ -76,7 +85,7 @@ TEST(expression, expression_postfix_dec_passthrough)
     auto tokens = make_tokens(
         make_identifier("my_var"));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_dec)
@@ -87,7 +96,7 @@ TEST(expression, expression_postfix_dec)
         make_identifier("my_var"),
         make_symbol(halberd::lexer::symbol::op_decrement));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_dec_multiple)
@@ -99,11 +108,10 @@ TEST(expression, expression_postfix_dec_multiple)
         make_symbol(halberd::lexer::symbol::op_decrement),
         make_symbol(halberd::lexer::symbol::op_decrement));
 
-    ASSERT_TRUE(compile_expression(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
 TEST(expression, expression_postfix_dec_src)
 {
-    //TODO: requires lexer support for multi-character symbols
-    //ASSERT_TRUE(compile_expression("my_var--"));
+    ASSERT_TRUE(compile_expression_postfix("my_var--"));
 }

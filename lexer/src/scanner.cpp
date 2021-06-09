@@ -113,7 +113,7 @@ std::unique_ptr<ns::token> ns::scanner::scan()
                     throw std::exception();
                 }
 
-                const auto result_symbol = ns::to_symbol(ch);
+                const auto result_symbol = ns::to_symbol(ch, _ss_input);
 
                 if (result_symbol.second)
                 {
