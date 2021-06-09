@@ -2,17 +2,28 @@
 
 #include "combinator.h"
 #include "combinator_choice.h"
+#include "combinator_repeat.h"
 #include "combinator_sequence.h"
 #include "combinator_transform.h"
 
 #include <utility> // std::forward
-#include <type_traits> // std::enable_if_t
+#include <type_traits> // std::enable_if_t, std::decay_t
 
 
 namespace halberd
 {
 namespace parser
 {
+    // Unary operators
+
+    template<typename P, typename = std::enable_if_t<is_combinator<std::decay_t<P>>::value>>
+    constexpr auto operator*(P&& parser) noexcept
+    {
+        return make_repeat(std::forward<P>(parser));
+    }
+
+    // Binary operators
+
     template<typename P1,
              typename P2,
              typename = std::enable_if_t<is_combinator<P1>::value>,
@@ -37,7 +48,7 @@ namespace parser
         return concat(std::move(seq1), std::move(seq2));
     }
 
-    template<typename P, typename Fn, typename = std::enable_if_t<is_combinator<P>::value>>
+    template<typename P, typename Fn, typename = std::enable_if_t<is_combinator<std::decay_t<P>>::value>>
     constexpr auto operator>>(P&& parser, Fn fn) noexcept
     {
         return make_transform(std::forward<P>(parser), std::move(fn));
