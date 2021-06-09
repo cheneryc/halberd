@@ -75,7 +75,9 @@ TEST(expression, expression_postfix_inc_multiple)
 
 TEST(expression, expression_postfix_inc_src)
 {
+    ASSERT_TRUE(compile_expression_postfix("my_var"));
     ASSERT_TRUE(compile_expression_postfix("my_var++"));
+    ASSERT_TRUE(compile_expression_postfix("my_var++++"));
 }
 
 TEST(expression, expression_postfix_dec_passthrough)
@@ -113,5 +115,28 @@ TEST(expression, expression_postfix_dec_multiple)
 
 TEST(expression, expression_postfix_dec_src)
 {
+    ASSERT_TRUE(compile_expression_postfix("my_var"));
     ASSERT_TRUE(compile_expression_postfix("my_var--"));
+    ASSERT_TRUE(compile_expression_postfix("my_var----"));
+}
+
+TEST(expression, expression_postfix_both)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("my_var"),
+        make_symbol(halberd::lexer::symbol::op_increment),
+        make_symbol(halberd::lexer::symbol::op_decrement),
+        make_symbol(halberd::lexer::symbol::op_increment),
+        make_symbol(halberd::lexer::symbol::op_decrement));
+
+    ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
+}
+
+TEST(expression, expression_postfix_both_src)
+{
+    ASSERT_TRUE(compile_expression_postfix("my_var"));
+    ASSERT_TRUE(compile_expression_postfix("my_var++--"));
+    ASSERT_TRUE(compile_expression_postfix("my_var++--++--"));
 }
