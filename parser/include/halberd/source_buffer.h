@@ -23,7 +23,8 @@ namespace parser
             _fn(fn),
             _fn_conv(conv),
             _tokens(),
-            _tokens_position()
+            _tokens_position(),
+            _is_exhausted(false)
         {
         }
 
@@ -38,14 +39,19 @@ namespace parser
 
             while (_tokens.size() <= offset)
             {
-                if (auto token = _fn())
-                {
-                    _tokens.push_back(std::move(token));
-                }
-                else
+                if (_is_exhausted)
                 {
                     return { R(), false };
                 }
+
+                auto token = _fn();
+
+                if (_is_exhausted = !token)
+                {
+                    return { R(), false };
+                }
+
+                _tokens.push_back(std::move(token));
             }
 
             return { _fn_conv(_tokens[offset]), true };
@@ -87,6 +93,8 @@ namespace parser
 
         std::deque<T> _tokens;
         std::size_t   _tokens_position;
+
+        bool _is_exhausted;
     };
 
     namespace detail
