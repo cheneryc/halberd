@@ -31,13 +31,13 @@ std::pair<ns::symbol, bool> ns::to_symbol(char ch, std::istringstream& ss)
             sym = symbol::bracket_round_close;
             break;
         case '+': // 43
-            sym = try_match(ss, '+') ? symbol::op_increment : symbol::op_add;
+            sym = try_match(ss, '+') ? symbol::op_increment : symbol::sign_plus;
             break;
         case '-': // 45
-            sym = try_match(ss, '-') ? symbol::op_decrement : symbol::op_subtract;
+            sym = try_match(ss, '-') ? symbol::op_decrement : symbol::sign_minus;
             break;
         case '=': // 61
-            sym = symbol::op_assign;
+            sym = symbol::sign_equals;
             break;
         case '{': // 123
             sym = symbol::bracket_curly_open;

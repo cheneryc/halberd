@@ -56,9 +56,9 @@ TEST(scan, scan_whitespace)
     }
 }
 
-TEST(scan, scan_symbol_add)
+TEST(scan, scan_symbol_plus)
 {
-    const ns::symbol expected_symbol = ns::symbol::op_add;
+    const ns::symbol expected_symbol = ns::symbol::sign_plus;
 
     {
         const auto tokens = ns::scan(ns::get_smv_union(), "+");
@@ -111,8 +111,8 @@ TEST(scan, scan_symbol_increment)
         const auto tokens = ns::scan(ns::get_smv_union(), "+ +"); // separating whitespace should not be ignored
 
         ASSERT_EQ(2U, tokens.size());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[0U])._symbol);
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1U])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[0U])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1U])._symbol);
     }
 }
 
@@ -161,7 +161,7 @@ TEST(scan, scan_identifier_symbol)
 
         ASSERT_EQ(2U, tokens.size());
         ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
     }
 
     {
@@ -169,7 +169,7 @@ TEST(scan, scan_identifier_symbol)
 
         ASSERT_EQ(2U, tokens.size());
         ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
     }
 
     {
@@ -177,7 +177,7 @@ TEST(scan, scan_identifier_symbol)
 
         ASSERT_EQ(2U, tokens.size());
         ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
     }
 }
 
@@ -191,7 +191,7 @@ TEST(scan, scan_identifier_symbol_identifier)
 
         ASSERT_EQ(3U, tokens.size());
         ASSERT_STREQ(expected_id1, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_assign, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_equals, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
         ASSERT_STREQ(expected_id2, dynamic_cast<const ns::token_identifier&>(*tokens[2])._identifier.c_str());
     }
 
@@ -200,7 +200,7 @@ TEST(scan, scan_identifier_symbol_identifier)
 
         ASSERT_EQ(3U, tokens.size());
         ASSERT_STREQ(expected_id1, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_assign, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_equals, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
         ASSERT_STREQ(expected_id2, dynamic_cast<const ns::token_identifier&>(*tokens[2])._identifier.c_str());
     }
 }
@@ -214,7 +214,7 @@ TEST(scan, scan_identifier_symbol_fractional)
 
         ASSERT_EQ(3U, tokens.size());
         ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
         ASSERT_EQ(1.0f, dynamic_cast<const ns::token_literal_fractional&>(*tokens[2])._value);
     }
 
@@ -223,7 +223,7 @@ TEST(scan, scan_identifier_symbol_fractional)
 
         ASSERT_EQ(3U, tokens.size());
         ASSERT_STREQ(expected_id, dynamic_cast<const ns::token_identifier&>(*tokens[0])._identifier.c_str());
-        ASSERT_EQ(ns::symbol::op_add, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
+        ASSERT_EQ(ns::symbol::sign_plus, dynamic_cast<const ns::token_symbol&>(*tokens[1])._symbol);
         ASSERT_EQ(1.0f, dynamic_cast<const ns::token_literal_fractional&>(*tokens[2])._value);
     }
 }

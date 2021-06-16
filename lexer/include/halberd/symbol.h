@@ -10,10 +10,12 @@ namespace lexer
 {
     enum class symbol
     {
+        // Signs
+        sign_plus,      // '+'
+        sign_minus,     // '-'
+        sign_equals,    // '='
+
         // Operators
-        op_add,       // '+'
-        op_subtract,  // '-'
-        op_assign,    // '='
         op_increment, // '++'
         op_decrement, // '--'
 
