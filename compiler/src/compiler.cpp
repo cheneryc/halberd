@@ -54,15 +54,15 @@ namespace
 
 bool ns::compile(const char* src)
 {
-    return compile_rule(rule::variable_declaration, src);
+    return compile_rule(rule::variable_declaration, src).operator bool();
 }
 
 bool ns::compile(std::vector<std::unique_ptr<lexer::token>> tokens)
 {
-    return compile_rule(rule::variable_declaration, std::move(tokens));
+    return compile_rule(rule::variable_declaration, std::move(tokens)).operator bool();
 }
 
-bool ns::compile_rule(rule r, const char* src)
+halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, const char* src)
 {
     lexer::scanner scanner(lexer::get_smv_union(), src);
 
@@ -79,10 +79,10 @@ bool ns::compile_rule(rule r, const char* src)
     using token_t = std::unique_ptr<lexer::token>;
     using token_ptr_t = lexer::token*;
 
-    return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source).operator bool();
+    return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
 }
 
-bool ns::compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)
+halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)
 {
     auto token_source = parser::make_source(
         [it     = std::make_move_iterator(tokens.begin()),
@@ -99,5 +99,5 @@ bool ns::compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)
     using token_t = std::unique_ptr<lexer::token>;
     using token_ptr_t = lexer::token*;
 
-    return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source).operator bool();
+    return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
 }

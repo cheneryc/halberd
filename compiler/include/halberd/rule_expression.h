@@ -2,6 +2,7 @@
 
 #include "rule_common.h"
 #include "expression_postfix_transform.h"
+#include "expression_prefix_transform.h"
 
 // halberd::lexer
 #include <halberd/symbol.h>
@@ -80,6 +81,25 @@ namespace compiler
     template<typename T, typename R>
     constexpr auto parser_expression_postfix_v = (parser_expression_primary_v<T, R> + *detail::parser_operator_postfix_v) >> expression_postfix_transform();
 
+    /*
+        <expression_prefix> ::= SYMBOL('++') + <expression_prefix> | SYMBOL('--') + <expression_prefix> | <expression_postfix>
+
+        // Remove left recursion by using the 'repeat' operator
+
+        <operator_prefix> ::= SYMBOL('++') | SYMBOL('--')
+        <expression_prefix> ::= *<operator_prefix> + <expression_postfix>
+     */
+
+    namespace detail
+    {
+        constexpr auto parser_operator_prefix_v =
+            match_symbol_v<lexer::symbol::op_increment> |
+            match_symbol_v<lexer::symbol::op_decrement>;
+    }
+
+    template<typename T, typename R>
+    constexpr auto parser_expression_prefix_v = (*detail::parser_operator_postfix_v + parser_expression_postfix_v<T, R>) >> expression_prefix_transform();
+
     // Parser function definitions
 
     /*
@@ -89,7 +109,7 @@ namespace compiler
     template<typename T, typename R>
     constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression(parser::source<T, R>& source)
     {
-        return parser_expression_postfix_v<T, R>.apply(source);
+        return parser_expression_prefix_v<T, R>.apply(source);
     }
 
     // Parser factories
@@ -104,6 +124,12 @@ namespace compiler
     constexpr auto make_parser_expression_postfix()
     {
         return parser_expression_postfix_v<T, R> + parser_end_v;
+    }
+
+    template<typename T, typename R>
+    constexpr auto make_parser_expression_prefix()
+    {
+        return parser_expression_prefix_v<T, R> + parser_end_v;
     }
 }
 }

@@ -9,3 +9,8 @@ namespace
 ns::operator_unary_postfix::operator_unary_postfix(operator_unary_postfix_id operator_id, std::unique_ptr<expression> operand) : operator_id(operator_id), _operand(std::move(operand))
 {
 }
+
+const ns::expression& ns::operator_unary_postfix::get_operand() const
+{
+    return *_operand;
+}
