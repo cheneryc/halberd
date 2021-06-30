@@ -56,17 +56,14 @@ namespace
     }
 }
 
-TEST(expression, expression_primary)
+TEST(compile_expression, primary_src)
 {
     ASSERT_TRUE(compile_expression("1.0"));
     ASSERT_TRUE(compile_expression("(1.0)"));
     ASSERT_TRUE(compile_expression("x"));
-    ASSERT_TRUE(compile_expression("x y"));
-    //ASSERT_TRUE(compile_expression("x y z"));
-    //ASSERT_TRUE(compile_expression("x 1.0 (y)"));
 }
 
-TEST(expression, expression_postfix_passthrough)
+TEST(compile_expression, postfix_passthrough)
 {
     using namespace test;
 
@@ -76,7 +73,7 @@ TEST(expression, expression_postfix_passthrough)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_inc)
+TEST(compile_expression, postfix_inc)
 {
     using namespace test;
 
@@ -87,7 +84,7 @@ TEST(expression, expression_postfix_inc)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_inc_multiple)
+TEST(compile_expression, postfix_inc_multiple)
 {
     using namespace test;
 
@@ -99,14 +96,14 @@ TEST(expression, expression_postfix_inc_multiple)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_inc_src)
+TEST(compile_expression, postfix_inc_src)
 {
     ASSERT_TRUE(compile_expression_postfix("my_var"));
     ASSERT_TRUE(compile_expression_postfix("my_var++"));
     ASSERT_TRUE(compile_expression_postfix("my_var++++"));
 }
 
-TEST(expression, expression_postfix_dec)
+TEST(compile_expression, postfix_dec)
 {
     using namespace test;
 
@@ -117,7 +114,7 @@ TEST(expression, expression_postfix_dec)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_dec_multiple)
+TEST(compile_expression, postfix_dec_multiple)
 {
     using namespace test;
 
@@ -129,14 +126,14 @@ TEST(expression, expression_postfix_dec_multiple)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_dec_src)
+TEST(compile_expression, postfix_dec_src)
 {
     ASSERT_TRUE(compile_expression_postfix("my_var"));
     ASSERT_TRUE(compile_expression_postfix("my_var--"));
     ASSERT_TRUE(compile_expression_postfix("my_var----"));
 }
 
-TEST(expression, expression_postfix_both)
+TEST(compile_expression, postfix_both)
 {
     using namespace test;
 
@@ -150,14 +147,14 @@ TEST(expression, expression_postfix_both)
     ASSERT_TRUE(compile_expression_postfix(std::move(tokens)));
 }
 
-TEST(expression, expression_postfix_both_src)
+TEST(compile_expression, postfix_both_src)
 {
     ASSERT_TRUE(compile_expression_postfix("my_var"));
     ASSERT_TRUE(compile_expression_postfix("my_var++--"));
     ASSERT_TRUE(compile_expression_postfix("my_var++--++--"));
 }
 
-TEST(expression, expression_prefix_passthrough)
+TEST(compile_expression, prefix_passthrough)
 {
     using namespace test;
 
@@ -167,7 +164,7 @@ TEST(expression, expression_prefix_passthrough)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_inc)
+TEST(compile_expression, prefix_inc)
 {
     using namespace test;
 
@@ -178,7 +175,7 @@ TEST(expression, expression_prefix_inc)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_inc_multiple)
+TEST(compile_expression, prefix_inc_multiple)
 {
     using namespace test;
 
@@ -190,14 +187,14 @@ TEST(expression, expression_prefix_inc_multiple)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_inc_src)
+TEST(compile_expression, prefix_inc_src)
 {
     ASSERT_TRUE(compile_expression_prefix("my_var"));
     ASSERT_TRUE(compile_expression_prefix("++my_var"));
     ASSERT_TRUE(compile_expression_prefix("++++my_var"));
 }
 
-TEST(expression, expression_prefix_dec)
+TEST(compile_expression, prefix_dec)
 {
     using namespace test;
 
@@ -208,7 +205,7 @@ TEST(expression, expression_prefix_dec)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_dec_multiple)
+TEST(compile_expression, prefix_dec_multiple)
 {
     using namespace test;
 
@@ -220,14 +217,14 @@ TEST(expression, expression_prefix_dec_multiple)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_dec_src)
+TEST(compile_expression, prefix_dec_src)
 {
     ASSERT_TRUE(compile_expression_prefix("my_var"));
     ASSERT_TRUE(compile_expression_prefix("--my_var"));
     ASSERT_TRUE(compile_expression_prefix("----my_var"));
 }
 
-TEST(expression, expression_prefix_both)
+TEST(compile_expression, prefix_both)
 {
     using namespace test;
 
@@ -241,14 +238,14 @@ TEST(expression, expression_prefix_both)
     ASSERT_TRUE(compile_expression_prefix(std::move(tokens)));
 }
 
-TEST(expression, expression_prefix_both_src)
+TEST(compile_expression, prefix_both_src)
 {
     ASSERT_TRUE(compile_expression_prefix("my_var"));
     ASSERT_TRUE(compile_expression_prefix("--++my_var"));
     ASSERT_TRUE(compile_expression_prefix("--++--++my_var"));
 }
 
-TEST(expression, expression_increment_both)
+TEST(compile_expression, increment_both)
 {
     using namespace test;
 
@@ -275,14 +272,14 @@ TEST(expression, expression_increment_both)
     ASSERT_EQ(halberd::syntax::operator_unary_postfix_id::increment, op_unary_postfix.operator_id);
 }
 
-TEST(expression, expression_increment_both_src)
+TEST(compile_expression, increment_both_src)
 {
     ASSERT_TRUE(compile_expression_prefix("my_var"));
     ASSERT_TRUE(compile_expression_prefix("++my_var++"));
     ASSERT_TRUE(compile_expression_prefix("++++my_var++++"));
 }
 
-TEST(expression, expression_multiplicative_passthrough)
+TEST(compile_expression, multiplicative_passthrough)
 {
     using namespace test;
 
@@ -292,7 +289,7 @@ TEST(expression, expression_multiplicative_passthrough)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_asterisk)
+TEST(compile_expression, multiplicative_asterisk)
 {
     using namespace test;
 
@@ -304,7 +301,7 @@ TEST(expression, expression_multiplicative_asterisk)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_asterisk_multiple)
+TEST(compile_expression, multiplicative_asterisk_multiple)
 {
     using namespace test;
 
@@ -318,7 +315,7 @@ TEST(expression, expression_multiplicative_asterisk_multiple)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_slash)
+TEST(compile_expression, multiplicative_slash)
 {
     using namespace test;
 
@@ -330,7 +327,7 @@ TEST(expression, expression_multiplicative_slash)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_slash_multiple)
+TEST(compile_expression, multiplicative_slash_multiple)
 {
     using namespace test;
 
@@ -344,7 +341,7 @@ TEST(expression, expression_multiplicative_slash_multiple)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_percent)
+TEST(compile_expression, multiplicative_percent)
 {
     using namespace test;
 
@@ -356,7 +353,7 @@ TEST(expression, expression_multiplicative_percent)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_percent_multiple)
+TEST(compile_expression, multiplicative_percent_multiple)
 {
     using namespace test;
 
@@ -370,7 +367,7 @@ TEST(expression, expression_multiplicative_percent_multiple)
     ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
 }
 
-TEST(expression, expression_multiplicative_associativity)
+TEST(compile_expression, multiplicative_associativity)
 {
     using namespace test;
 
@@ -405,7 +402,7 @@ TEST(expression, expression_multiplicative_associativity)
     ASSERT_EQ(halberd::syntax::operator_binary_id::multiplication, op_binary_mul.operator_id);
 }
 
-TEST(expression, expression_multiplicative_src)
+TEST(compile_expression, multiplicative_src)
 {
     ASSERT_TRUE(compile_expression_multiplicative("a"));
     ASSERT_TRUE(compile_expression_multiplicative("a * b"));
