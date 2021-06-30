@@ -4,6 +4,7 @@ set(INCLUDE include)
 
 set(HEADER include/halberd/expression.h
            include/halberd/node.h
+           include/halberd/operator_binary.h
            include/halberd/operator_unary_postfix.h
            include/halberd/operator_unary_prefix.h
            include/halberd/tree.h
@@ -12,6 +13,7 @@ set(HEADER include/halberd/expression.h
 
 set(SOURCE src/expression.cpp
            src/node.cpp
+           src/operator_binary.cpp
            src/operator_unary_postfix.cpp
            src/operator_unary_prefix.cpp
            src/tree.cpp

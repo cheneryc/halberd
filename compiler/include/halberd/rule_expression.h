@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rule_common.h"
+#include "expression_multiplicative_transform.h"
 #include "expression_postfix_transform.h"
 #include "expression_prefix_transform.h"
 
@@ -9,6 +10,7 @@
 
 // halberd::parser
 #include <halberd/combinator_function.h>
+#include <halberd/combinator_optional.h>
 #include <halberd/combinator_operators.h>
 #include <halberd/index_tag.h>
 #include <halberd/parse_result.h>
@@ -17,7 +19,12 @@
 // halberd::syntax
 #include <halberd/expression.h>
 
+#include <iterator> // std::make_move_iterator
 #include <memory> // std::unique_ptr
+#include <tuple> // std::tie
+#include <utility> // std::pair
+#include <vector> // std::vector
+
 
 
 namespace halberd
@@ -100,6 +107,66 @@ namespace compiler
     template<typename T, typename R>
     constexpr auto parser_expression_prefix_v = (*detail::parser_operator_postfix_v + parser_expression_postfix_v<T, R>) >> expression_prefix_transform();
 
+    /*
+        <expression_multiplicative> ::= <expression_multiplicative> + SYMBOL('*') + <expression_prefix> |
+                                        <expression_multiplicative> + SYMBOL('/') + <expression_prefix> |
+                                        <expression_multiplicative> + SYMBOL('%') + <expression_prefix> |
+                                        <expression_prefix>
+
+        // Remove left recursion by addition of a 'tail' nonterminal
+
+        <expression_multiplicative_tail> ::= SYMBOL('*') + <expression_prefix> + <expression_multiplicative_tail> |
+                                             SYMBOL('/') + <expression_prefix> + <expression_multiplicative_tail> |
+                                             SYMBOL('%') + <expression_prefix> + <expression_multiplicative_tail> |
+                                             E
+        <expression_multiplicative> ::= <expression_prefix> + <expression_multiplicative_tail>
+     */
+
+    namespace detail
+    {
+        template<typename T, typename R>
+        constexpr parser::parse_result<std::vector<std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>>> parse_expression_multiplicative_tail(parser::source<T, R>& source)
+        {
+            // Required for recursive parsing
+            constexpr auto parser_expression_multiplicative_tail = parser::combinator_function_v<decltype(parse_expression_multiplicative_tail<T, R>), &parse_expression_multiplicative_tail<T, R>>;
+
+            // Making the rule optional is equivalent to accepting the empty string
+            constexpr auto parser = parser::make_optional((match_symbol_v<lexer::symbol::asterisk>     + parser_expression_prefix_v<T, R> + parser_expression_multiplicative_tail) |
+                                                          (match_symbol_v<lexer::symbol::slash>        + parser_expression_prefix_v<T, R> + parser_expression_multiplicative_tail) |
+                                                          (match_symbol_v<lexer::symbol::sign_percent> + parser_expression_prefix_v<T, R> + parser_expression_multiplicative_tail));
+
+            using sym_exp_pair_t = std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>;
+
+            std::vector<sym_exp_pair_t> sym_exp_pairs;
+            std::vector<sym_exp_pair_t> sym_exp_pairs_rec;
+
+            auto result = parser.apply(source);
+
+            if (auto& result_opt = result.get()) // combinator_optional always succeeds so no need to test the result for success
+            {
+                sym_exp_pair_t sym_exp_pair;
+
+                std::tie(sym_exp_pair.first,
+                         sym_exp_pair.second,
+                         sym_exp_pairs_rec) = std::move(result_opt.get());
+
+                sym_exp_pairs.reserve(sym_exp_pairs_rec.size() + 1U);
+                sym_exp_pairs.insert(sym_exp_pairs.end(), std::move(sym_exp_pair));
+                sym_exp_pairs.insert(sym_exp_pairs.end(),
+                    std::make_move_iterator(sym_exp_pairs_rec.begin()),
+                    std::make_move_iterator(sym_exp_pairs_rec.end()));
+            }
+
+            return { std::move(sym_exp_pairs) };
+        }
+
+        template<typename T, typename R>
+        constexpr auto parser_expression_multiplicative_tail_v = parser::combinator_function_v<decltype(parse_expression_multiplicative_tail<T, R>), &parse_expression_multiplicative_tail<T, R>>;
+    }
+
+    template<typename T, typename R>
+    constexpr auto parser_expression_multiplicative_v = (parser_expression_prefix_v<T, R> + detail::parser_expression_multiplicative_tail_v<T, R>) >> expression_multiplicative_transform();
+
     // Parser function definitions
 
     /*
@@ -109,7 +176,7 @@ namespace compiler
     template<typename T, typename R>
     constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression(parser::source<T, R>& source)
     {
-        return parser_expression_prefix_v<T, R>.apply(source);
+        return parser_expression_multiplicative_v<T, R>.apply(source);
     }
 
     // Parser factories
@@ -130,6 +197,12 @@ namespace compiler
     constexpr auto make_parser_expression_prefix()
     {
         return parser_expression_prefix_v<T, R> + parser_end_v;
+    }
+
+    template<typename T, typename R>
+    constexpr auto make_parser_expression_multiplicative()
+    {
+        return parser_expression_multiplicative_v<T, R> + parser_end_v;
     }
 }
 }

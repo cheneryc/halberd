@@ -4,6 +4,7 @@
 #include <halberd/compiler.h>
 
 // halberd::syntax
+#include <halberd/operator_binary.h>
 #include <halberd/operator_unary_prefix.h>
 #include <halberd/operator_unary_postfix.h>
 
@@ -42,6 +43,16 @@ namespace
     auto compile_expression_prefix(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
         return ns::compile_rule(ns::rule::expression_prefix, std::move(tokens));
+    }
+
+    auto compile_expression_multiplicative(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression_multiplicative, src);
+    }
+
+    auto compile_expression_multiplicative(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
+    {
+        return ns::compile_rule(ns::rule::expression_multiplicative, std::move(tokens));
     }
 }
 
@@ -269,4 +280,135 @@ TEST(expression, expression_increment_both_src)
     ASSERT_TRUE(compile_expression_prefix("my_var"));
     ASSERT_TRUE(compile_expression_prefix("++my_var++"));
     ASSERT_TRUE(compile_expression_prefix("++++my_var++++"));
+}
+
+TEST(expression, expression_multiplicative_passthrough)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("my_var"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_asterisk)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::asterisk),
+        make_identifier("b"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_asterisk_multiple)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::asterisk),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::asterisk),
+        make_identifier("c"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_slash)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::slash),
+        make_identifier("b"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_slash_multiple)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::slash),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::slash),
+        make_identifier("c"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_percent)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_percent),
+        make_identifier("b"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_percent_multiple)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_percent),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::sign_percent),
+        make_identifier("c"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(expression, expression_multiplicative_associativity)
+{
+    using namespace test;
+
+    // Ensure the operator associativity is left-to-right
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::asterisk),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::slash),
+        make_identifier("c"),
+        make_symbol(halberd::lexer::symbol::sign_percent),
+        make_identifier("d"));
+
+    auto result = compile_expression_multiplicative(std::move(tokens));
+
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(result.get());
+
+    const auto& node_rem = *(result.get());
+    const auto& op_binary_rem = dynamic_cast<const halberd::syntax::operator_binary&>(node_rem);
+
+    ASSERT_EQ(halberd::syntax::operator_binary_id::remainder, op_binary_rem.operator_id);
+
+    const auto& node_div = op_binary_rem.get_operand_lhs();
+    const auto& op_binary_div = dynamic_cast<const halberd::syntax::operator_binary&>(node_div);
+
+    ASSERT_EQ(halberd::syntax::operator_binary_id::division, op_binary_div.operator_id);
+
+    const auto& node_mul = op_binary_div.get_operand_lhs();
+    const auto& op_binary_mul = dynamic_cast<const halberd::syntax::operator_binary&>(node_mul);
+
+    ASSERT_EQ(halberd::syntax::operator_binary_id::multiplication, op_binary_mul.operator_id);
+}
+
+TEST(expression, expression_multiplicative_src)
+{
+    ASSERT_TRUE(compile_expression_multiplicative("a"));
+    ASSERT_TRUE(compile_expression_multiplicative("a * b"));
+    ASSERT_TRUE(compile_expression_multiplicative("a * b / c"));
+    ASSERT_TRUE(compile_expression_multiplicative("a * b / c % d"));
 }
