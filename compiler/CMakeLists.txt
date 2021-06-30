@@ -7,12 +7,14 @@ set(HEADER include/halberd/compiler.h
            include/halberd/rule_common.h
            include/halberd/rule_expression.h
            include/halberd/rule_variable_declaration.h
+           include/halberd/expression_multiplicative_transform.h
            include/halberd/expression_postfix_transform.h
            include/halberd/expression_prefix_transform.h
            include/halberd/variable_declaration_transform.h
            include/halberd/util/type.h)
 
 set(SOURCE src/compiler.cpp
+           src/expression_multiplicative_transform.cpp
            src/expression_postfix_transform.cpp
            src/expression_prefix_transform.cpp
            src/variable_declaration_transform.cpp)
