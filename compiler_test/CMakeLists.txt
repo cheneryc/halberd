@@ -2,7 +2,7 @@ project(halberd_compiler_test)
 
 set(SOURCE src/compiler_test.cpp
            src/compiler_test_common.h
-           src/expression_test.cpp)
+           src/compile_expression_test.cpp)
 
 add_executable(halberd_compiler_test ${SOURCE})
 
