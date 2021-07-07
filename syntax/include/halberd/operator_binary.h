@@ -11,6 +11,8 @@ namespace syntax
 {
     enum class operator_binary_id
     {
+        addition,
+        subtraction,
         multiplication,
         division,
         remainder

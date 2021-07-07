@@ -8,7 +8,6 @@
 
 #include <memory> // std::unique_ptr
 #include <tuple> // std::tuple
-#include <utility> // std::pair
 #include <vector> // std::vector
 
 
@@ -18,7 +17,7 @@ namespace compiler
 {
     struct expression_multiplicative_transform
     {
-        std::unique_ptr<syntax::expression> operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const;
+        std::unique_ptr<syntax::expression> operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const;
     };
 }
 }

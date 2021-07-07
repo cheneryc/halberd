@@ -54,6 +54,16 @@ namespace
     {
         return ns::compile_rule(ns::rule::expression_multiplicative, std::move(tokens));
     }
+
+    auto compile_expression_additive(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression_additive, src);
+    }
+
+    auto compile_expression_additive(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
+    {
+        return ns::compile_rule(ns::rule::expression_additive, std::move(tokens));
+    }
 }
 
 TEST(compile_expression, primary_src)
@@ -408,4 +418,101 @@ TEST(compile_expression, multiplicative_src)
     ASSERT_TRUE(compile_expression_multiplicative("a * b"));
     ASSERT_TRUE(compile_expression_multiplicative("a * b / c"));
     ASSERT_TRUE(compile_expression_multiplicative("a * b / c % d"));
+}
+
+TEST(compile_expression, additive_passthrough)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("my_var"));
+
+    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+}
+
+TEST(compile_expression, additive_plus)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_plus),
+        make_identifier("b"));
+
+    ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
+}
+
+TEST(compile_expression, additive_plus_multiple)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_plus),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::sign_plus),
+        make_identifier("c"));
+
+    ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
+}
+
+TEST(compile_expression, additive_minus)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_minus),
+        make_identifier("b"));
+
+    ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
+}
+
+TEST(compile_expression, additive_minus_multiple)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_minus),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::sign_minus),
+        make_identifier("c"));
+
+    ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
+}
+
+TEST(compile_expression, additive_src)
+{
+    ASSERT_TRUE(compile_expression_additive("a"));
+    ASSERT_TRUE(compile_expression_additive("a + b"));
+    ASSERT_TRUE(compile_expression_additive("a + b - c"));
+}
+
+TEST(compile_expression, additive_associativity)
+{
+    using namespace test;
+
+    // Ensure the operator associativity is left-to-right
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_plus),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::sign_minus),
+        make_identifier("c"));
+
+    auto result = compile_expression_additive(std::move(tokens));
+
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(result.get());
+
+    const auto& node_sub = *(result.get());
+    const auto& op_binary_sub = dynamic_cast<const halberd::syntax::operator_binary&>(node_sub);
+
+    ASSERT_EQ(halberd::syntax::operator_binary_id::subtraction, op_binary_sub.operator_id);
+
+    const auto& node_add = op_binary_sub.get_operand_lhs();
+    const auto& op_binary_add = dynamic_cast<const halberd::syntax::operator_binary&>(node_add);
+
+    ASSERT_EQ(halberd::syntax::operator_binary_id::addition, op_binary_add.operator_id);
 }

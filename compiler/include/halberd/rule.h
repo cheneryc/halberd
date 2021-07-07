@@ -24,6 +24,7 @@ namespace compiler
         expression_postfix,
         expression_prefix,
         expression_multiplicative,
+        expression_additive,
         variable_declaration
     };
 
@@ -40,6 +41,8 @@ namespace compiler
                 return make_parser_expression_prefix<T, R>();
             case rule::expression_multiplicative:
                 return make_parser_expression_multiplicative<T, R>();
+            case rule::expression_additive:
+                return make_parser_expression_additive<T, R>();
             case rule::variable_declaration:
                 return make_parser_variable_declaration();
         }
