@@ -51,7 +51,7 @@ namespace parser
                 values.push_back(get_value(std::move(result)));
             }
 
-            return { values };
+            return { std::move(values) };
         }
 
     private:

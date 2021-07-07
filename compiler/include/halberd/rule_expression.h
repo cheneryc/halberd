@@ -21,8 +21,7 @@
 
 #include <iterator> // std::make_move_iterator
 #include <memory> // std::unique_ptr
-#include <tuple> // std::tie
-#include <utility> // std::pair
+#include <tuple> // std::tuple, std::tie
 #include <vector> // std::vector
 
 
@@ -125,7 +124,7 @@ namespace compiler
     namespace detail
     {
         template<typename T, typename R>
-        constexpr parser::parse_result<std::vector<std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>>> parse_expression_multiplicative_tail(parser::source<T, R>& source)
+        constexpr parser::parse_result<std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>>> parse_expression_multiplicative_tail(parser::source<T, R>& source)
         {
             // Required for recursive parsing
             constexpr auto parser_expression_multiplicative_tail = parser::combinator_function_v<decltype(parse_expression_multiplicative_tail<T, R>), &parse_expression_multiplicative_tail<T, R>>;
@@ -135,7 +134,7 @@ namespace compiler
                                                           (match_symbol_v<lexer::symbol::slash>        + parser_expression_prefix_v<T, R> + parser_expression_multiplicative_tail) |
                                                           (match_symbol_v<lexer::symbol::sign_percent> + parser_expression_prefix_v<T, R> + parser_expression_multiplicative_tail));
 
-            using sym_exp_pair_t = std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>;
+            using sym_exp_pair_t = std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>;
 
             std::vector<sym_exp_pair_t> sym_exp_pairs;
             std::vector<sym_exp_pair_t> sym_exp_pairs_rec;
@@ -146,8 +145,8 @@ namespace compiler
             {
                 sym_exp_pair_t sym_exp_pair;
 
-                std::tie(sym_exp_pair.first,
-                         sym_exp_pair.second,
+                std::tie(std::get<0U>(sym_exp_pair),
+                         std::get<1U>(sym_exp_pair),
                          sym_exp_pairs_rec) = std::move(result_opt.get());
 
                 sym_exp_pairs.reserve(sym_exp_pairs_rec.size() + 1U);
@@ -167,16 +166,41 @@ namespace compiler
     template<typename T, typename R>
     constexpr auto parser_expression_multiplicative_v = (parser_expression_prefix_v<T, R> + detail::parser_expression_multiplicative_tail_v<T, R>) >> expression_multiplicative_transform();
 
+    /*
+        <expression_additive> ::= <expression_additive> + SYMBOL('+') + <expression_multiplicative> |
+                                  <expression_additive> + SYMBOL('-') + <expression_multiplicative> |
+                                  <expression_multiplicative>
+
+        // Remove left recursion by using the 'repeat' operator
+
+        <operator_additive> ::= SYMBOL('+') | SYMBOL('-')
+        <operator_additive_expression_rhs> ::= <operator_additive> + <expression_multiplicative>
+        <expression_additive> ::= <expression_multiplicative> + *<operator_additive_expression_rhs>
+     */
+
+    namespace detail
+    {
+        constexpr auto parser_operator_additive_v =
+            match_symbol_v<lexer::symbol::sign_plus> |
+            match_symbol_v<lexer::symbol::sign_minus>;
+
+        template<typename T, typename R>
+        constexpr auto parser_operator_additive_expression_rhs_v = parser_operator_additive_v + parser_expression_multiplicative_v<T, R>;
+    }
+
+    template<typename T, typename R>
+    constexpr auto parser_expression_additive_v = (parser_expression_multiplicative_v<T, R> + *detail::parser_operator_additive_expression_rhs_v<T, R>) >> expression_multiplicative_transform();
+
     // Parser function definitions
 
     /*
-        <expression> ::= <expression_postfix>
+        <expression> ::= <expression_additive>
      */
 
     template<typename T, typename R>
     constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression(parser::source<T, R>& source)
     {
-        return parser_expression_multiplicative_v<T, R>.apply(source);
+        return parser_expression_additive_v<T, R>.apply(source);
     }
 
     // Parser factories
@@ -203,6 +227,12 @@ namespace compiler
     constexpr auto make_parser_expression_multiplicative()
     {
         return parser_expression_multiplicative_v<T, R> + parser_end_v;
+    }
+
+    template<typename T, typename R>
+    constexpr auto make_parser_expression_additive()
+    {
+        return parser_expression_additive_v<T, R> + parser_end_v;
     }
 }
 }

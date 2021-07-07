@@ -9,10 +9,10 @@ namespace
     namespace ns = halberd::compiler;
 }
 
-std::unique_ptr<halberd::syntax::expression> ns::expression_multiplicative_transform::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const
+std::unique_ptr<halberd::syntax::expression> ns::expression_multiplicative_transform::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const
 {
     std::unique_ptr<syntax::expression> exp_operator;
-    std::vector<std::pair<lexer::symbol, std::unique_ptr<syntax::expression>>> sym_exp_pairs;
+    std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>> sym_exp_pairs;
 
     std::tie(exp_operator, sym_exp_pairs) = std::move(value);
 
@@ -32,6 +32,12 @@ std::unique_ptr<halberd::syntax::expression> ns::expression_multiplicative_trans
 
         switch (symbol)
         {
+            case lexer::symbol::sign_plus:
+                operator_id = syntax::operator_binary_id::addition;
+                break;
+            case lexer::symbol::sign_minus:
+                operator_id = syntax::operator_binary_id::subtraction;
+                break;
             case lexer::symbol::asterisk:
                 operator_id = syntax::operator_binary_id::multiplication;
                 break;
