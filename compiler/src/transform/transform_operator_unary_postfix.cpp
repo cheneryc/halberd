@@ -1,4 +1,6 @@
-#include <halberd/expression_postfix_transform.h>
+#include <halberd/transform/transform_operator_unary_postfix.h>
+
+// halberd::syntax
 #include <halberd/operator_unary_postfix.h>
 
 #include <stdexcept> // std::invalid_argument
@@ -6,10 +8,10 @@
 
 namespace
 {
-    namespace ns = halberd::compiler;
+    namespace ns = halberd::compiler::transform;
 }
 
-std::unique_ptr<halberd::syntax::expression> ns::expression_postfix_transform::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<lexer::symbol>> value) const
+std::unique_ptr<halberd::syntax::expression> ns::transform_operator_unary_postfix::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<lexer::symbol>> value) const
 {
     std::vector<lexer::symbol> symbols;
     std::unique_ptr<syntax::expression> exp_operator;

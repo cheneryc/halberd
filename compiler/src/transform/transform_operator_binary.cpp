@@ -1,4 +1,6 @@
-#include <halberd/expression_multiplicative_transform.h>
+#include <halberd/transform/transform_operator_binary.h>
+
+// halberd::syntax
 #include <halberd/operator_binary.h>
 
 #include <stdexcept> // std::invalid_argument
@@ -6,10 +8,10 @@
 
 namespace
 {
-    namespace ns = halberd::compiler;
+    namespace ns = halberd::compiler::transform;
 }
 
-std::unique_ptr<halberd::syntax::expression> ns::expression_multiplicative_transform::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const
+std::unique_ptr<halberd::syntax::expression> ns::transform_operator_binary::operator()(std::tuple<std::unique_ptr<syntax::expression>, std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>>> value) const
 {
     std::unique_ptr<syntax::expression> exp_operator;
     std::vector<std::tuple<lexer::symbol, std::unique_ptr<syntax::expression>>> sym_exp_pairs;

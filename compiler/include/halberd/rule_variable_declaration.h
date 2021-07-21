@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rule_common.h"
-#include "variable_declaration_transform.h"
+#include "transform/transform_variable_declaration.h"
 
 // halberd::lexer
 #include <halberd/keyword.h>
@@ -38,7 +38,7 @@ namespace compiler
         match_keyword_v<lexer::keyword::strict_var> +
         parser_type_integer_v +
         match_identifier_v +
-        parser_end_v)[parser::index_sequence_tag_v<1U, 2U>] >> variable_declaration_transform();
+        parser_end_v)[parser::index_sequence_tag_v<1U, 2U>] >> transform::transform_variable_declaration();
 
     // Parser factory
 

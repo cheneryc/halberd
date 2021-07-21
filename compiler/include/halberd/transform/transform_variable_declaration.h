@@ -15,9 +15,12 @@ namespace halberd
 {
 namespace compiler
 {
-    struct variable_declaration_transform
+namespace transform
+{
+    struct transform_variable_declaration
     {
         std::unique_ptr<syntax::variable_declaration> operator()(std::tuple<lexer::keyword, std::string> value) const;
     };
+}
 }
 }

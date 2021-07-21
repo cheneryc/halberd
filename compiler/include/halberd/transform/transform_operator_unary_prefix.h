@@ -15,9 +15,12 @@ namespace halberd
 {
 namespace compiler
 {
-    struct expression_prefix_transform
+namespace transform
+{
+    struct transform_operator_unary_prefix
     {
         std::unique_ptr<syntax::expression> operator()(std::tuple<std::vector<lexer::symbol>, std::unique_ptr<syntax::expression>> value) const;
     };
+}
 }
 }
