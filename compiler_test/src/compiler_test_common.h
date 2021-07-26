@@ -26,6 +26,16 @@ namespace test
         return std::make_unique<halberd::lexer::token_identifier>(std::move(identifier));
     }
 
+    inline std::unique_ptr<halberd::lexer::token_literal_fractional> make_literal_fractional(float value)
+    {
+        return std::make_unique<halberd::lexer::token_literal_fractional>(value);
+    }
+
+    inline std::unique_ptr<halberd::lexer::token_literal_integer> make_literal_integer(int value)
+    {
+        return std::make_unique<halberd::lexer::token_literal_integer>(value);
+    }
+
     template<typename... Ts>
     std::vector<std::unique_ptr<halberd::lexer::token>> make_tokens(Ts&&... t)
     {

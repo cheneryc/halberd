@@ -31,6 +31,7 @@ namespace lexer
 
     struct token_literal_fractional : public token
     {
+        token_literal_fractional(float f) noexcept;
         token_literal_fractional(const std::basic_string<char>& str);
 
         const float _value;
@@ -38,6 +39,7 @@ namespace lexer
 
     struct token_literal_integer : public token
     {
+        token_literal_integer(int i) noexcept;
         token_literal_integer(const std::basic_string<char>& str);
 
         const int _value;

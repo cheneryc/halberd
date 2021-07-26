@@ -46,7 +46,15 @@ ns::token_identifier_reserved::token_identifier_reserved(keyword kw) : _keyword(
 {
 }
 
+ns::token_literal_fractional::token_literal_fractional(float f) noexcept : _value(f)
+{
+}
+
 ns::token_literal_fractional::token_literal_fractional(const std::basic_string<char>& str) : _value(::to_float(str))
+{
+}
+
+ns::token_literal_integer::token_literal_integer(int i) noexcept : _value(i)
 {
 }
 

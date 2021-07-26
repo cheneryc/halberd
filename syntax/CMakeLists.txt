@@ -3,6 +3,7 @@ project(halberd_syntax)
 set(INCLUDE include)
 
 set(HEADER include/halberd/expression.h
+           include/halberd/literal.h
            include/halberd/node.h
            include/halberd/operator_binary.h
            include/halberd/operator_unary_postfix.h
@@ -12,6 +13,7 @@ set(HEADER include/halberd/expression.h
            include/halberd/variable_declaration.h)
 
 set(SOURCE src/expression.cpp
+           src/literal.cpp
            src/node.cpp
            src/operator_binary.cpp
            src/operator_unary_postfix.cpp

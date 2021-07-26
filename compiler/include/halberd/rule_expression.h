@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rule_common.h"
+#include "transform/transform_literal.h"
 #include "transform/transform_operator_binary.h"
 #include "transform/transform_operator_unary_postfix.h"
 #include "transform/transform_operator_unary_prefix.h"
@@ -19,11 +20,7 @@
 // halberd::syntax
 #include <halberd/expression.h>
 
-#include <iterator> // std::make_move_iterator
 #include <memory> // std::unique_ptr
-#include <tuple> // std::tuple, std::tie
-#include <vector> // std::vector
-
 
 
 namespace halberd
@@ -44,10 +41,18 @@ namespace compiler
         <expression_terminal> ::= IDENTIFIER | LITERAL_FRACTIONAL | LITERAL_INTEGER
      */
 
-    constexpr auto parser_expression_terminal_v = (
-        filter_identifier_v |
-        filter_literal_fractional_v |
-        filter_literal_integer_v) >> syntax::expression_transform(); //TODO: implement a literal syntax node and transform type
+    namespace detail
+    {
+        constexpr auto parser_identifier_v = filter_identifier_v >> syntax::expression_transform();
+
+        constexpr auto parser_literal_v =
+            (match_literal_fractional_v >> transform::transform_literal()) |
+            (match_literal_integer_v >> transform::transform_literal());
+    }
+
+    constexpr auto parser_expression_terminal_v =
+        detail::parser_identifier_v |
+        detail::parser_literal_v;
 
     /*
         <expression_parentheses> ::= SYMBOL('(') <expression> SYMBOL(')')
@@ -176,6 +181,11 @@ namespace compiler
     constexpr auto make_parser_expression()
     {
         return parser::combinator_function_v<decltype(parse_expression<T, R>), &parse_expression<T, R>> + parser_end_v;
+    }
+
+    constexpr auto make_parser_expression_terminal()
+    {
+        return parser_expression_terminal_v + parser_end_v;
     }
 
     template<typename T, typename R>

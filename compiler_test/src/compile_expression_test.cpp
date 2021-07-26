@@ -25,6 +25,16 @@ namespace
         return ns::compile_rule(ns::rule::expression, std::move(tokens));
     }
 
+    auto compile_expression_terminal(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression_terminal, src);
+    }
+
+    auto compile_expression_terminal(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
+    {
+        return ns::compile_rule(ns::rule::expression_terminal, std::move(tokens));
+    }
+
     auto compile_expression_postfix(const char* src)
     {
         return ns::compile_rule(ns::rule::expression_postfix, src);
@@ -65,6 +75,66 @@ namespace
         return ns::compile_rule(ns::rule::expression_additive, std::move(tokens));
     }
 }
+
+TEST(compile_expression, terminal_fractional_value)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_literal_fractional(0.12345f));
+
+    auto result = compile_expression_terminal(std::move(tokens));
+
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(result.get());
+
+    const auto& node_literal = *(result.get());
+    const auto& literal_frac = dynamic_cast<const halberd::syntax::literal&>(node_literal);
+
+    ASSERT_EQ(halberd::syntax::literal_id::fractional, literal_frac.id);
+    ASSERT_EQ(0.12345f, literal_frac.get_fractional());
+}
+
+TEST(compile_expression, terminal_fractional_src)
+{
+    ASSERT_TRUE(compile_expression_terminal(".0"));
+    ASSERT_TRUE(compile_expression_terminal("0.0"));
+    ASSERT_TRUE(compile_expression_terminal("0."));
+}
+
+TEST(compile_expression, terminal_integer_value)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_literal_integer(123456789));
+
+    auto result = compile_expression_terminal(std::move(tokens));
+
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(result.get());
+
+    const auto& node_literal = *(result.get());
+    const auto& literal_int = dynamic_cast<const halberd::syntax::literal&>(node_literal);
+
+    ASSERT_EQ(halberd::syntax::literal_id::integer, literal_int.id);
+    ASSERT_EQ(123456789, literal_int.get_integer());
+}
+
+//TODO: enable once lexer support for integer literals exists
+/*TEST(compile_expression, terminal_integer_src)
+{
+    ASSERT_TRUE(compile_expression_terminal("1"));
+    ASSERT_TRUE(compile_expression_terminal("12"));
+    ASSERT_TRUE(compile_expression_terminal("123"));
+    ASSERT_TRUE(compile_expression_terminal("1234"));
+    ASSERT_TRUE(compile_expression_terminal("12345"));
+    ASSERT_TRUE(compile_expression_terminal("123456"));
+    ASSERT_TRUE(compile_expression_terminal("1234567"));
+    ASSERT_TRUE(compile_expression_terminal("12345678"));
+    ASSERT_TRUE(compile_expression_terminal("123456789"));
+    ASSERT_TRUE(compile_expression_terminal("1234567890"));
+}*/
 
 TEST(compile_expression, primary_src)
 {

@@ -21,6 +21,7 @@ namespace compiler
     enum class rule
     {
         expression,
+        expression_terminal,
         expression_postfix,
         expression_prefix,
         expression_multiplicative,
@@ -35,6 +36,8 @@ namespace compiler
         {
             case rule::expression:
                 return make_parser_expression<T, R>();
+            case rule::expression_terminal:
+                return make_parser_expression_terminal();
             case rule::expression_postfix:
                 return make_parser_expression_postfix<T, R>();
             case rule::expression_prefix:
