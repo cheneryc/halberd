@@ -39,6 +39,9 @@ namespace
             case ns::lexer_tag::accept_literal_fraction:
                 token = std::make_unique<ns::token_literal_fractional>(str_token);
                 break;
+            case ns::lexer_tag::accept_literal_integer:
+                token = std::make_unique<ns::token_literal_integer>(str_token);
+                break;
             default:
                 throw std::exception();
         }

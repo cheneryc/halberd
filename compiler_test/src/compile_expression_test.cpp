@@ -97,9 +97,9 @@ TEST(compile_expression, terminal_fractional_value)
 
 TEST(compile_expression, terminal_fractional_src)
 {
+    ASSERT_TRUE(compile_expression_terminal("0."));
     ASSERT_TRUE(compile_expression_terminal(".0"));
     ASSERT_TRUE(compile_expression_terminal("0.0"));
-    ASSERT_TRUE(compile_expression_terminal("0."));
 }
 
 TEST(compile_expression, terminal_integer_value)
@@ -121,20 +121,12 @@ TEST(compile_expression, terminal_integer_value)
     ASSERT_EQ(123456789, literal_int.get_integer());
 }
 
-//TODO: enable once lexer support for integer literals exists
-/*TEST(compile_expression, terminal_integer_src)
+TEST(compile_expression, terminal_integer_src)
 {
     ASSERT_TRUE(compile_expression_terminal("1"));
     ASSERT_TRUE(compile_expression_terminal("12"));
     ASSERT_TRUE(compile_expression_terminal("123"));
-    ASSERT_TRUE(compile_expression_terminal("1234"));
-    ASSERT_TRUE(compile_expression_terminal("12345"));
-    ASSERT_TRUE(compile_expression_terminal("123456"));
-    ASSERT_TRUE(compile_expression_terminal("1234567"));
-    ASSERT_TRUE(compile_expression_terminal("12345678"));
-    ASSERT_TRUE(compile_expression_terminal("123456789"));
-    ASSERT_TRUE(compile_expression_terminal("1234567890"));
-}*/
+}
 
 TEST(compile_expression, primary_src)
 {

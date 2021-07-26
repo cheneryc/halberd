@@ -73,6 +73,25 @@ namespace
 
         return sm;
     }
+
+    template<typename TSym>
+    constexpr auto get_sm_integer_literal() noexcept
+    {
+        constexpr auto s_end =
+            ns::state_v<TSym, 0U, true, ns::lexer_tag, ns::lexer_tag::accept_literal_integer>
+                + ns::make_transition_self(digit_symbol_range<TSym>);
+
+        constexpr auto s_start =
+            ns::state_v<TSym, ns::next_index(s_end), false, ns::lexer_tag>
+                + ns::make_transition(digit_symbol_range<TSym>, ns::get_index_tag(s_end));
+
+        constexpr auto sm =
+            ns::state_machine_v<TSym, ns::get_index(s_start), ns::lexer_tag>
+                + s_end
+                + s_start;
+
+        return sm;
+    }
 }
 
 namespace halberd
@@ -105,11 +124,20 @@ ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_fractional_literal() noe
     return smv;
 }
 
+ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_integer_literal() noexcept
+{
+    constexpr auto sm = ::get_sm_integer_literal<char>();
+    constexpr auto smv = ns::to_state_machine_view(sm);
+
+    return smv;
+}
+
 ns::state_machine_view<char, ns::lexer_tag> ns::get_smv_union() noexcept
 {
     constexpr auto sm_union =
         ::get_sm_identifier<char>() |
-        ::get_sm_fractional_literal<char>();
+        ::get_sm_fractional_literal<char>() |
+        ::get_sm_integer_literal<char>();
 
     constexpr auto smv_union = ns::to_state_machine_view(sm_union);
 

@@ -89,3 +89,31 @@ TEST(lexer, state_machine_view_fractional_literal_reject)
     EXPECT_FALSE(::is_accepted(smv_fractional, "a.0"));
     EXPECT_FALSE(::is_accepted(smv_fractional, "0123456789"));
 }
+
+TEST(lexer, state_machine_view_integer_literal_accept)
+{
+    const auto smv_integer = ns::get_smv_integer_literal();
+
+    EXPECT_TRUE(::is_accepted(smv_integer, "1"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "12"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "123"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "1234"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "12345"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "123456"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "1234567"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "12345678"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "123456789"));
+    EXPECT_TRUE(::is_accepted(smv_integer, "1234567890"));
+}
+
+TEST(lexer, state_machine_view_integer_literal_reject)
+{
+    const auto smv_integer = ns::get_smv_integer_literal();
+
+    EXPECT_FALSE(::is_accepted(smv_integer, ""));
+    EXPECT_FALSE(::is_accepted(smv_integer, "0."));
+    EXPECT_FALSE(::is_accepted(smv_integer, ".0"));
+    EXPECT_FALSE(::is_accepted(smv_integer, "0.0"));
+    EXPECT_FALSE(::is_accepted(smv_integer, "A"));
+    EXPECT_FALSE(::is_accepted(smv_integer, "1A"));
+}

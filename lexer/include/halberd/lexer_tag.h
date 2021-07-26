@@ -11,7 +11,8 @@ namespace lexer
     {
         none = 0U,
         accept_identifier       = 0x1,
-        accept_literal_fraction = 0x2
+        accept_literal_fraction = 0x2,
+        accept_literal_integer  = 0x4
     };
 }
 }
