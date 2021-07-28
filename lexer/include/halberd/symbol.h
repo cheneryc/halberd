@@ -15,8 +15,8 @@ namespace lexer
         // Signs
         sign_plus,    // '+'
         sign_minus,   // '-'
-        sign_equals,  // '='
         sign_percent, // '%'
+        sign_equals,  // '='
 
         // Slashes
         slash,      // '/'
@@ -25,6 +25,13 @@ namespace lexer
         // Operators
         op_increment, // '++'
         op_decrement, // '--'
+
+        // Assignment
+        assign_plus,     // '+='
+        assign_minus,    // '-='
+        assign_asterisk, // '*='
+        assign_slash,    // '/='
+        assign_percent,  // '%='
 
         // Parentheses
         bracket_round_open,  // '('

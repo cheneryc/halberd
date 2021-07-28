@@ -20,7 +20,7 @@ std::unique_ptr<halberd::syntax::expression> ns::transform_operator_binary::oper
 
     if (!exp_operator)
     {
-        throw std::invalid_argument("halberd::syntax::expression_multiplicative_transform: expression argument cannot be null");
+        throw std::invalid_argument("halberd::compiler::transform::transform_operator_binary: lhs expression argument cannot be null");
     }
 
     for (auto& sym_exp_pair : sym_exp_pairs)
@@ -29,6 +29,11 @@ std::unique_ptr<halberd::syntax::expression> ns::transform_operator_binary::oper
         std::unique_ptr<syntax::expression> exp_operand;
 
         std::tie(symbol, exp_operand) = std::move(sym_exp_pair);
+
+        if (!exp_operand)
+        {
+            throw std::invalid_argument("halberd::compiler::transform::transform_operator_binary: rhs expression argument cannot be null");
+        }
 
         syntax::operator_binary_id operator_id;
 
@@ -50,7 +55,7 @@ std::unique_ptr<halberd::syntax::expression> ns::transform_operator_binary::oper
                 operator_id = syntax::operator_binary_id::remainder;
                 break;
             default:
-                throw std::invalid_argument("invalid symbol for halberd::syntax::expression_multiplicative_transform");
+                throw std::invalid_argument("invalid symbol for halberd::compiler::transform::transform_operator_binary");
         }
 
         // Construct a new operator_binary expression with

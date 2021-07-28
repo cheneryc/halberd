@@ -25,7 +25,7 @@ std::pair<ns::symbol, bool> ns::to_symbol(char ch, std::istringstream& ss)
     switch (ch)
     {
         case '%':  // 37
-            sym = symbol::sign_percent;
+            sym = try_match(ss, '=') ? symbol::assign_percent : symbol::sign_percent;
             break;
         case '(':  // 40
             sym = symbol::bracket_round_open;
@@ -34,16 +34,16 @@ std::pair<ns::symbol, bool> ns::to_symbol(char ch, std::istringstream& ss)
             sym = symbol::bracket_round_close;
             break;
         case '*':  // 42
-            sym = symbol::asterisk;
+            sym = try_match(ss, '=') ? symbol::assign_asterisk : symbol::asterisk;
             break;
         case '+':  // 43
-            sym = try_match(ss, '+') ? symbol::op_increment : symbol::sign_plus;
+            sym = try_match(ss, '=') ? symbol::assign_plus  : (try_match(ss, '+') ? symbol::op_increment : symbol::sign_plus);
             break;
         case '-':  // 45
-            sym = try_match(ss, '-') ? symbol::op_decrement : symbol::sign_minus;
+            sym = try_match(ss, '=') ? symbol::assign_minus : (try_match(ss, '-') ? symbol::op_decrement : symbol::sign_minus);
             break;
         case '/':  // 47
-            sym = symbol::slash;
+            sym = try_match(ss, '=') ? symbol::assign_slash : symbol::slash;
             break;
         case '=':  // 61
             sym = symbol::sign_equals;

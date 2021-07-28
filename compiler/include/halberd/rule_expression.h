@@ -2,6 +2,7 @@
 
 #include "rule_common.h"
 #include "transform/transform_literal.h"
+#include "transform/transform_operator_assignment.h"
 #include "transform/transform_operator_binary.h"
 #include "transform/transform_operator_unary_postfix.h"
 #include "transform/transform_operator_unary_prefix.h"
@@ -11,7 +12,6 @@
 
 // halberd::parser
 #include <halberd/combinator_function.h>
-#include <halberd/combinator_optional.h>
 #include <halberd/combinator_operators.h>
 #include <halberd/index_tag.h>
 #include <halberd/parse_result.h>
@@ -34,6 +34,12 @@ namespace compiler
 
     template<typename T, typename R>
     constexpr auto parser_expression_v = parser::combinator_function_v<decltype(parse_expression<T, R>), &parse_expression<T, R>>;
+
+    template<typename T, typename R>
+    constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression_assignment(parser::source<T, R>& source);
+
+    template<typename T, typename R>
+    constexpr auto parser_expression_assignment_v = parser::combinator_function_v<decltype(parse_expression_assignment<T, R>), &parse_expression_assignment<T, R>>;
 
     // Parser rules
 
@@ -163,16 +169,61 @@ namespace compiler
     template<typename T, typename R>
     constexpr auto parser_expression_additive_v = (parser_expression_multiplicative_v<T, R> + *detail::parser_operator_additive_expression_rhs_v<T, R>) >> transform::transform_operator_binary();
 
+    /*
+        <operator_assignment> ::= SYMBOL('=') | SYMBOL('*=') | SYMBOL('/=') | SYMBOL('%=') | SYMBOL('+=') | SYMBOL('-=')
+     */
+
+    namespace detail
+    {
+        constexpr auto parser_operator_assignment_v =
+            match_symbol_v<lexer::symbol::sign_equals> |
+            match_symbol_v<lexer::symbol::assign_asterisk> |
+            match_symbol_v<lexer::symbol::assign_slash> |
+            match_symbol_v<lexer::symbol::assign_percent> |
+            match_symbol_v<lexer::symbol::assign_plus> |
+            match_symbol_v<lexer::symbol::assign_minus>;
+    }
+
     // Parser function definitions
 
     /*
-        <expression> ::= <expression_additive>
+        <expression> ::= <expression_assignment>
      */
 
     template<typename T, typename R>
     constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression(parser::source<T, R>& source)
     {
-        return parser_expression_additive_v<T, R>.apply(source);
+        return parser::combinator_function_v<decltype(parse_expression_assignment<T, R>), &parse_expression_assignment<T, R>>.apply(source);
+    }
+
+    /*
+        <expression_assignment> ::= <expression_prefix> + <operator_assignment> + <expression_assignment> | <expression_additive>
+
+        // Add a 'partial' nonterminal to make applying a transform easier
+
+        <expression_assignment_partial> ::= <expression_prefix> + <operator_assignment> + <expression_assignment>
+        <expression_assignment> ::= <expression_assignment_partial> | <expression_additive>
+     */
+
+    namespace detail
+    {
+        template<typename T, typename R>
+        constexpr auto parser_expression_assignment_partial_v = (
+            parser_expression_prefix_v<T, R> +
+            parser_operator_assignment_v +
+            parser_expression_assignment_v<T, R>) >> transform::transform_operator_assignment();
+    }
+
+    template<typename T, typename R>
+    constexpr parser::parse_result<std::unique_ptr<syntax::expression>> parse_expression_assignment(parser::source<T, R>& source)
+    {
+        using namespace detail;
+
+        constexpr auto parser =
+            parser_expression_assignment_partial_v<T, R> |
+            parser_expression_additive_v<T, R>;
+
+        return parser.apply(source);
     }
 
     // Parser factories
@@ -210,6 +261,12 @@ namespace compiler
     constexpr auto make_parser_expression_additive()
     {
         return parser_expression_additive_v<T, R> + parser_end_v;
+    }
+
+    template<typename T, typename R>
+    constexpr auto make_parser_expression_assignment()
+    {
+        return parser_expression_assignment_v<T, R> + parser_end_v;
     }
 }
 }

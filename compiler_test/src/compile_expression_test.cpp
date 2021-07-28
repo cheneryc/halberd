@@ -4,6 +4,7 @@
 #include <halberd/compiler.h>
 
 // halberd::syntax
+#include <halberd/operator_assignment.h>
 #include <halberd/operator_binary.h>
 #include <halberd/operator_unary_prefix.h>
 #include <halberd/operator_unary_postfix.h>
@@ -73,6 +74,16 @@ namespace
     auto compile_expression_additive(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
         return ns::compile_rule(ns::rule::expression_additive, std::move(tokens));
+    }
+
+    auto compile_expression_assignment(const char* src)
+    {
+        return ns::compile_rule(ns::rule::expression_assignment, src);
+    }
+
+    auto compile_expression_assignment(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
+    {
+        return ns::compile_rule(ns::rule::expression_assignment, std::move(tokens));
     }
 }
 
@@ -489,7 +500,7 @@ TEST(compile_expression, additive_passthrough)
     auto tokens = make_tokens(
         make_identifier("my_var"));
 
-    ASSERT_TRUE(compile_expression_multiplicative(std::move(tokens)));
+    ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
 }
 
 TEST(compile_expression, additive_plus)
@@ -544,13 +555,6 @@ TEST(compile_expression, additive_minus_multiple)
     ASSERT_TRUE(compile_expression_additive(std::move(tokens)));
 }
 
-TEST(compile_expression, additive_src)
-{
-    ASSERT_TRUE(compile_expression_additive("a"));
-    ASSERT_TRUE(compile_expression_additive("a + b"));
-    ASSERT_TRUE(compile_expression_additive("a + b - c"));
-}
-
 TEST(compile_expression, additive_associativity)
 {
     using namespace test;
@@ -577,4 +581,75 @@ TEST(compile_expression, additive_associativity)
     const auto& op_binary_add = dynamic_cast<const halberd::syntax::operator_binary&>(node_add);
 
     ASSERT_EQ(halberd::syntax::operator_binary_id::addition, op_binary_add.operator_id);
+}
+
+TEST(compile_expression, additive_src)
+{
+    ASSERT_TRUE(compile_expression_additive("a"));
+    ASSERT_TRUE(compile_expression_additive("a + b"));
+    ASSERT_TRUE(compile_expression_additive("a + b - c"));
+}
+
+TEST(compile_expression, assignment_passthrough)
+{
+    using namespace test;
+
+    auto tokens = make_tokens(
+        make_identifier("my_var"));
+
+    ASSERT_TRUE(compile_expression_assignment(std::move(tokens)));
+}
+
+//TODO: add the remaining tests for assignment
+
+TEST(compile_expression, assignment_associativity)
+{
+    using namespace test;
+
+    // Ensure the operator associativity is right-to-left
+    auto tokens = make_tokens(
+        make_identifier("a"),
+        make_symbol(halberd::lexer::symbol::sign_equals),
+        make_identifier("b"),
+        make_symbol(halberd::lexer::symbol::assign_plus),
+        make_identifier("c"),
+        make_symbol(halberd::lexer::symbol::assign_minus),
+        make_identifier("d"));
+
+    auto result = compile_expression_assignment(std::move(tokens));
+
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(result.get());
+
+    const auto& node_eq = *(result.get());
+    const auto& op_assign = dynamic_cast<const halberd::syntax::operator_assignment&>(node_eq);
+
+    ASSERT_EQ(halberd::syntax::operator_assignment_id::assignment, op_assign.operator_id);
+
+    const auto& node_add = op_assign.get_operand_rhs();
+    const auto& op_assign_add = dynamic_cast<const halberd::syntax::operator_assignment&>(node_add);
+
+    ASSERT_EQ(halberd::syntax::operator_assignment_id::compound_addition, op_assign_add.operator_id);
+
+    const auto& node_sub = op_assign_add.get_operand_rhs();
+    const auto& op_assign_sub = dynamic_cast<const halberd::syntax::operator_assignment&>(node_sub);
+
+    ASSERT_EQ(halberd::syntax::operator_assignment_id::compound_subtraction, op_assign_sub.operator_id);
+}
+
+TEST(compile_expression, assignment_src)
+{
+    ASSERT_TRUE(compile_expression_assignment("a"));
+    ASSERT_TRUE(compile_expression_assignment("a = b"));
+    ASSERT_TRUE(compile_expression_assignment("a = b = c"));
+    ASSERT_TRUE(compile_expression_assignment("a += b"));
+    ASSERT_TRUE(compile_expression_assignment("a += b += c"));
+    ASSERT_TRUE(compile_expression_assignment("a -= b"));
+    ASSERT_TRUE(compile_expression_assignment("a -= b -= c"));
+    ASSERT_TRUE(compile_expression_assignment("a *= b"));
+    ASSERT_TRUE(compile_expression_assignment("a *= b *= c"));
+    ASSERT_TRUE(compile_expression_assignment("a /= b"));
+    ASSERT_TRUE(compile_expression_assignment("a /= b /= c"));
+    ASSERT_TRUE(compile_expression_assignment("a %= b"));
+    ASSERT_TRUE(compile_expression_assignment("a %= b %= c"));
 }

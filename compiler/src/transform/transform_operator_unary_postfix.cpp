@@ -20,7 +20,7 @@ std::unique_ptr<halberd::syntax::expression> ns::transform_operator_unary_postfi
 
     if (!exp_operator)
     {
-        throw std::invalid_argument("halberd::syntax::expression_postfix_transform: expression argument cannot be null");
+        throw std::invalid_argument("halberd::compiler::transform::transform_operator_unary_postfix: expression argument cannot be null");
     }
 
     for (const auto& symbol : symbols)
@@ -36,7 +36,7 @@ std::unique_ptr<halberd::syntax::expression> ns::transform_operator_unary_postfi
                 operator_id = syntax::operator_unary_postfix_id::decrement;
                 break;
             default:
-                throw std::invalid_argument("invalid symbol for halberd::syntax::expression_postfix_transform");
+                throw std::invalid_argument("invalid symbol for halberd::compiler::transform::transform_operator_unary_postfix");
         }
 
         // Construct a new operator_unary_postfix expression

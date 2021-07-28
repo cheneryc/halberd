@@ -8,6 +8,7 @@ set(HEADER include/halberd/compiler.h
            include/halberd/rule_expression.h
            include/halberd/rule_variable_declaration.h
            include/halberd/transform/transform_literal.h
+           include/halberd/transform/transform_operator_assignment.h
            include/halberd/transform/transform_operator_binary.h
            include/halberd/transform/transform_operator_unary_postfix.h
            include/halberd/transform/transform_operator_unary_prefix.h
@@ -16,6 +17,7 @@ set(HEADER include/halberd/compiler.h
 
 set(SOURCE src/compiler.cpp
            src/transform/transform_literal.cpp
+           src/transform/transform_operator_assignment.cpp
            src/transform/transform_operator_binary.cpp
            src/transform/transform_operator_unary_postfix.cpp
            src/transform/transform_operator_unary_prefix.cpp
