@@ -1,20 +1,18 @@
 #pragma once
 
-#include "node.h"
+#include "declaration.h"
 
-#include <string>
+#include <string> // std::string
 
 
 namespace halberd
 {
 namespace syntax
 {
-    class variable_declaration : public node
+    class variable_declaration : public declaration
     {
     public:
-        variable_declaration(std::string name);
-
-        const std::string name;
+        variable_declaration(std::string name) noexcept;
     };
 }
 }

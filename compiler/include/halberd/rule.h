@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rule_expression.h"
-#include "rule_variable_declaration.h"
+#include "rule_statement.h"
 
 // halberd::parser
 #include <halberd/combinator_any.h>
@@ -27,7 +27,8 @@ namespace compiler
         expression_multiplicative,
         expression_additive,
         expression_assignment,
-        variable_declaration
+        statement,
+        statement_list
     };
 
     template<typename T, typename R>
@@ -49,8 +50,10 @@ namespace compiler
                 return make_parser_expression_additive<T, R>();
             case rule::expression_assignment:
                 return make_parser_expression_assignment<T, R>();
-            case rule::variable_declaration:
-                return make_parser_variable_declaration();
+            case rule::statement:
+                return make_parser_statement<T, R>();
+            case rule::statement_list:
+                return make_parser_statement_list<T, R>();
         }
 
         throw std::logic_error("unexpected value for halberd::compiler::rule enumeration");

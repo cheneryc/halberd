@@ -54,12 +54,12 @@ namespace
 
 bool ns::compile(const char* src)
 {
-    return compile_rule(rule::variable_declaration, src).operator bool();
+    return compile_rule(rule::statement_list, src).operator bool();
 }
 
 bool ns::compile(std::vector<std::unique_ptr<lexer::token>> tokens)
 {
-    return compile_rule(rule::variable_declaration, std::move(tokens)).operator bool();
+    return compile_rule(rule::statement_list, std::move(tokens)).operator bool();
 }
 
 halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, const char* src)

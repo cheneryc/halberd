@@ -18,6 +18,9 @@ namespace lexer
         sign_percent, // '%'
         sign_equals,  // '='
 
+        // Separators
+        semicolon, // ';'
+
         // Slashes
         slash,      // '/'
         slash_back, // '\'

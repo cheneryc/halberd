@@ -37,8 +37,7 @@ namespace compiler
     constexpr auto parser_variable_declaration_v = (
         match_keyword_v<lexer::keyword::strict_var> +
         parser_type_integer_v +
-        match_identifier_v +
-        parser_end_v)[parser::index_sequence_tag_v<1U, 2U>] >> transform::transform_variable_declaration();
+        match_identifier_v)[parser::index_sequence_tag_v<1U, 2U>] >> transform::transform_variable_declaration();
 
     // Parser factory
 

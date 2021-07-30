@@ -3,8 +3,8 @@
 // halberd::syntax
 #include <halberd/literal.h>
 
-#include <tuple> // std::tuple
 #include <memory> // std::unique_ptr
+#include <tuple> // std::tuple
 
 
 namespace halberd

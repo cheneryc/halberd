@@ -45,6 +45,9 @@ std::pair<ns::symbol, bool> ns::to_symbol(char ch, std::istringstream& ss)
         case '/':  // 47
             sym = try_match(ss, '=') ? symbol::assign_slash : symbol::slash;
             break;
+        case ';':  // 53
+            sym = symbol::semicolon;
+            break;
         case '=':  // 61
             sym = symbol::sign_equals;
             break;
