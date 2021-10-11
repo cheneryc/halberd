@@ -2,7 +2,10 @@ project(halberd_syntax)
 
 set(INCLUDE include)
 
-set(HEADER include/halberd/declaration.h
+set(HEADER include/halberd/const_visit.h
+           include/halberd/const_visitor.h
+           include/halberd/const_visitor_traversal.h
+           include/halberd/declaration.h
            include/halberd/declaration_statement.h
            include/halberd/expression.h
            include/halberd/expression_statement.h
@@ -24,7 +27,9 @@ set(HEADER include/halberd/declaration.h
            include/halberd/visitor.h
            include/halberd/visitor_traversal.h)
 
-set(SOURCE src/declaration.cpp
+set(SOURCE src/const_visit.cpp
+           src/const_visitor_traversal.cpp
+           src/declaration.cpp
            src/declaration_statement.cpp
            src/expression.cpp
            src/expression_statement.cpp

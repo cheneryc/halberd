@@ -1,5 +1,6 @@
 #include <halberd/statement_list.h>
 #include <halberd/visitor.h>
+#include <halberd/const_visitor.h>
 
 
 namespace

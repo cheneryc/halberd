@@ -12,8 +12,3 @@ void ns::visit(visitor& v, node& n)
 {
     n.accept(v);
 }
-
-void ns::visit(const_visitor& cv, const node& n)
-{
-    n.accept(cv);
-}

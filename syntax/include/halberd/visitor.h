@@ -32,21 +32,5 @@ namespace syntax
         virtual void visit(variable_declaration_statement&) = 0;
         virtual void visit(variable_declaration&) = 0;
     };
-
-    struct const_visitor
-    {
-        virtual ~const_visitor() = default;
-
-        virtual void visit(const expression_statement&) = 0;
-        virtual void visit(const identifier_expression&) = 0;
-        virtual void visit(const literal&) = 0;
-        virtual void visit(const operator_assignment&) = 0;
-        virtual void visit(const operator_binary&) = 0;
-        virtual void visit(const operator_unary_postfix&) = 0;
-        virtual void visit(const operator_unary_prefix&) = 0;
-        virtual void visit(const statement_list&) = 0;
-        virtual void visit(const variable_declaration_statement&) = 0;
-        virtual void visit(const variable_declaration&) = 0;
-    };
 }
 }

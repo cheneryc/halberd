@@ -1,6 +1,7 @@
 #include <halberd/expression_statement.h>
 #include <halberd/expression.h>
 #include <halberd/visitor.h>
+#include <halberd/const_visitor.h>
 
 
 namespace

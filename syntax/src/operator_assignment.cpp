@@ -1,5 +1,6 @@
 #include <halberd/operator_assignment.h>
 #include <halberd/visitor.h>
+#include <halberd/const_visitor.h>
 
 
 namespace

@@ -1,5 +1,6 @@
 #include <halberd/literal.h>
 #include <halberd/visitor.h>
+#include <halberd/const_visitor.h>
 
 #include <stdexcept> // std::logic_error
 
