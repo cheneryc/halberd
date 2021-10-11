@@ -57,10 +57,12 @@ TEST(compile_statement, variable_declaration_src_i8)
 TEST(compile_statement, list_src)
 {
     const char src[] = R"(
-        var i8  v1;
-        var i16 v2;
+        var i32 v1;
+        var i32 v2;
         var i32 v3;
-        var i64 v4;
+        var i32 v4;
+
+        v4 = (v1 + v2) / v3;
     )";
 
     ASSERT_TRUE(compile_statement_list(src));

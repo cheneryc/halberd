@@ -6,6 +6,7 @@ set(HEADER include/halberd/declaration.h
            include/halberd/declaration_statement.h
            include/halberd/expression.h
            include/halberd/expression_statement.h
+           include/halberd/identifier_expression.h
            include/halberd/list.h
            include/halberd/literal.h
            include/halberd/node.h
@@ -18,12 +19,16 @@ set(HEADER include/halberd/declaration.h
            include/halberd/tree.h
            include/halberd/tree_test.h
            include/halberd/variable_declaration.h
-           include/halberd/variable_declaration_statement.h)
+           include/halberd/variable_declaration_statement.h
+           include/halberd/visit.h
+           include/halberd/visitor.h
+           include/halberd/visitor_traversal.h)
 
 set(SOURCE src/declaration.cpp
            src/declaration_statement.cpp
            src/expression.cpp
            src/expression_statement.cpp
+           src/identifier_expression.cpp
            src/literal.cpp
            src/node.cpp
            src/operator_assignment.cpp
@@ -33,7 +38,9 @@ set(SOURCE src/declaration.cpp
            src/statement_list.cpp
            src/tree.cpp
            src/variable_declaration.cpp
-           src/variable_declaration_statement.cpp)
+           src/variable_declaration_statement.cpp
+           src/visit.cpp
+           src/visitor_traversal.cpp)
 
 add_library(halberd_syntax STATIC ${SOURCE} ${HEADER})
 

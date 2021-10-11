@@ -7,6 +7,10 @@ namespace halberd
 {
 namespace syntax
 {
+    // Forward declarations
+    class visitor;
+    class const_visitor;
+
     enum class literal_id
     {
         integer,
@@ -18,6 +22,9 @@ namespace syntax
     public:
         literal(int i) noexcept;
         literal(float f) noexcept;
+
+        void accept(visitor& v) override;
+        void accept(const_visitor& cv) const override;
 
         int get_integer() const;
         float get_fractional() const;

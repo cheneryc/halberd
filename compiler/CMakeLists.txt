@@ -10,6 +10,7 @@ set(HEADER include/halberd/compiler.h
            include/halberd/rule_variable_declaration.h
            include/halberd/transform/transform_declaration_statement.h
            include/halberd/transform/transform_expression_statement.h
+           include/halberd/transform/transform_identifier_expression.h
            include/halberd/transform/transform_literal.h
            include/halberd/transform/transform_operator_assignment.h
            include/halberd/transform/transform_operator_binary.h
@@ -21,6 +22,7 @@ set(HEADER include/halberd/compiler.h
 
 set(SOURCE src/compiler.cpp
            src/transform/transform_expression_statement.cpp
+           src/transform/transform_identifier_expression.cpp
            src/transform/transform_literal.cpp
            src/transform/transform_operator_assignment.cpp
            src/transform/transform_operator_binary.cpp

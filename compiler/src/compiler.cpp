@@ -79,7 +79,16 @@ halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compil
     using token_t = std::unique_ptr<lexer::token>;
     using token_ptr_t = lexer::token*;
 
-    return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
+    auto result = make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
+
+    if (result)
+    {
+        const auto& node = *result.get();
+
+        //TODO: apply visitor
+    }
+
+    return result;
 }
 
 halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)

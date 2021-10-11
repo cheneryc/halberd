@@ -1,4 +1,5 @@
 #include <halberd/operator_assignment.h>
+#include <halberd/visitor.h>
 
 
 namespace
@@ -12,9 +13,29 @@ ns::operator_assignment::operator_assignment(operator_assignment_id operator_id,
 {
 }
 
+void ns::operator_assignment::accept(visitor& v)
+{
+    v.visit(*this);
+}
+
+void ns::operator_assignment::accept(const_visitor& cv) const
+{
+    cv.visit(*this);
+}
+
+ns::expression& ns::operator_assignment::get_operand_lhs()
+{
+    return *_operand_lhs;
+}
+
 const ns::expression& ns::operator_assignment::get_operand_lhs() const
 {
     return *_operand_lhs;
+}
+
+ns::expression& ns::operator_assignment::get_operand_rhs()
+{
+    return *_operand_rhs;
 }
 
 const ns::expression& ns::operator_assignment::get_operand_rhs() const

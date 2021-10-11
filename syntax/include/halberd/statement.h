@@ -2,9 +2,6 @@
 
 #include "node.h"
 
-#include <memory> // std::unique_ptr
-#include <tuple> // std::tuple
-
 
 namespace halberd
 {

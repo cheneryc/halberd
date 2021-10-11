@@ -1,6 +1,6 @@
 #pragma once
 
-#include "declaration.h"
+#include "expression.h"
 
 #include <string> // std::string
 
@@ -13,13 +13,16 @@ namespace syntax
     class visitor;
     class const_visitor;
 
-    class variable_declaration : public declaration
+    class identifier_expression : public expression
     {
     public:
-        variable_declaration(std::string name) noexcept;
+        identifier_expression(std::string id) noexcept;
 
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
+
+    private:
+        std::string _id;
     };
 }
 }

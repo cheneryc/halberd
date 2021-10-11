@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rule_common.h"
+#include "transform/transform_identifier_expression.h"
 #include "transform/transform_literal.h"
 #include "transform/transform_operator_assignment.h"
 #include "transform/transform_operator_binary.h"
@@ -49,7 +50,7 @@ namespace compiler
 
     namespace detail
     {
-        constexpr auto parser_identifier_v = filter_identifier_v >> syntax::expression_transform();
+        constexpr auto parser_identifier_v = match_identifier_v >> transform::transform_identifier_expression();
 
         constexpr auto parser_literal_v =
             (match_literal_fractional_v >> transform::transform_literal()) |

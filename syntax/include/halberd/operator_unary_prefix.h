@@ -9,6 +9,10 @@ namespace halberd
 {
 namespace syntax
 {
+    // Forward declarations
+    class visitor;
+    class const_visitor;
+
     enum class operator_unary_prefix_id
     {
         increment,
@@ -20,6 +24,10 @@ namespace syntax
     public:
         operator_unary_prefix(operator_unary_prefix_id operator_id, std::unique_ptr<expression> operand);
 
+        void accept(visitor& v) override;
+        void accept(const_visitor& cv) const override;
+
+        expression& get_operand();
         const expression& get_operand() const;
 
         const operator_unary_prefix_id operator_id;

@@ -11,11 +11,19 @@ namespace syntax
 {
     // Forward declarations
     class expression;
+    class visitor;
+    class const_visitor;
 
     class expression_statement : public statement
     {
     public:
         expression_statement(std::unique_ptr<expression> exp) noexcept;
+
+        void accept(visitor& v) override;
+        void accept(const_visitor& cv) const override;
+
+        expression& get_expression();
+        const expression& get_expression() const;
 
     private:
         std::unique_ptr<expression> _exp;

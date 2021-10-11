@@ -17,7 +17,6 @@ namespace syntax
     protected:
         declaration_statement(std::unique_ptr<declaration> dec) noexcept;
 
-    private:
         std::unique_ptr<declaration> _dec;
     };
 }
