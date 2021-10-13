@@ -1,6 +1,7 @@
 #pragma once
 
-#include "util/optional.h"
+// halberd::util
+#include <halberd/util/optional.h>
 
 //TODO: make the meta headers a header-only library independent of lexer
 #include <../../lexer/include/halberd/meta/type_list.h>

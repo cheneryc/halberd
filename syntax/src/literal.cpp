@@ -28,6 +28,25 @@ void ns::literal::accept(const_visitor& cv) const
     cv.visit(*this);
 }
 
+ns::type ns::literal::get_type() const
+{
+    type_id tid;
+
+    switch (id)
+    {
+        case literal_id::integer:
+            tid = type_id::type_i32;
+            break;
+        case literal_id::fractional:
+            tid = type_id::type_f32;
+            break;
+        default:
+            throw std::logic_error("unexpected value for halberd::syntax::literal_id enumeration");
+    }
+
+    return { tid };
+}
+
 int ns::literal::get_integer() const
 {
     if (id != literal_id::integer)

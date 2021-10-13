@@ -21,3 +21,13 @@ void ns::identifier_expression::accept(const_visitor& cv) const
 {
     cv.visit(*this);
 }
+
+ns::type ns::identifier_expression::get_type() const
+{
+    throw std::exception();
+}
+
+const char* ns::identifier_expression::get_identifier() const noexcept
+{
+    return _id.c_str();
+}

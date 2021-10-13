@@ -1,6 +1,6 @@
 #pragma once
 
-#include "expression.h"
+#include "operator_base.h"
 
 #include <memory> // std::unique_ptr
 
@@ -10,6 +10,7 @@ namespace halberd
 namespace syntax
 {
     // Forward declarations
+    class expression;
     class visitor;
     class const_visitor;
 
@@ -19,7 +20,7 @@ namespace syntax
         decrement,
     };
 
-    class operator_unary_prefix : public expression
+    class operator_unary_prefix : public operator_base
     {
     public:
         operator_unary_prefix(operator_unary_prefix_id operator_id, std::unique_ptr<expression> operand);

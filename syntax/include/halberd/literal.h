@@ -1,6 +1,7 @@
 #pragma once
 
 #include "expression.h"
+#include "type.h"
 
 
 namespace halberd
@@ -25,6 +26,8 @@ namespace syntax
 
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
+
+        type get_type() const override;
 
         int get_integer() const;
         float get_fractional() const;

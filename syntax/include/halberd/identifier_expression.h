@@ -1,6 +1,7 @@
 #pragma once
 
 #include "expression.h"
+#include "type.h"
 
 #include <string> // std::string
 
@@ -20,6 +21,10 @@ namespace syntax
 
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
+
+        type get_type() const override;
+
+        const char* get_identifier() const noexcept;
 
     private:
         std::string _id;

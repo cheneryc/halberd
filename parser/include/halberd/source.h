@@ -2,6 +2,7 @@
 
 #include "source_buffer.h"
 
+// halberd::util
 #include "util/enum_flags.h"
 
 #include <memory> // std::shared_ptr

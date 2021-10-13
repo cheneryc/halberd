@@ -4,7 +4,8 @@
 #include "parse_result.h"
 #include "source.h"
 
-#include "util/optional.h"
+// halberd::util
+#include <halberd/util/optional.h>
 
 #include <tuple> // std::tuple
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "expression.h"
+#include "operator_base.h"
 
 #include <memory> // std::unique_ptr
 
@@ -10,6 +10,7 @@ namespace halberd
 namespace syntax
 {
     // Forward declarations
+    class expression;
     class visitor;
     class const_visitor;
 
@@ -22,7 +23,7 @@ namespace syntax
         remainder
     };
 
-    class operator_binary : public expression
+    class operator_binary : public operator_base
     {
     public:
         operator_binary(operator_binary_id operator_id, std::unique_ptr<expression> operand_lhs, std::unique_ptr<expression> operand_rhs);

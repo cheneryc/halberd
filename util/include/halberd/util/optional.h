@@ -116,6 +116,30 @@ namespace util
             return has_value();
         }
 
+        optional& operator=(T&& value)
+        {
+            if (_has_value)
+            {
+                _value.~T();
+            }
+
+            // _value requires explicit constructor call (via placement new) to activate the member
+            new (&_value) T(std::move(_value));
+            _has_value = true;
+        }
+
+        optional& operator=(const T& value)
+        {
+            if (_has_value)
+            {
+                _value.~T();
+            }
+
+            // _value requires explicit constructor call (via placement new) to activate the member
+            new (&_value) T(_value);
+            _has_value = true;
+        }
+
     private:
         // Anonymous union - members are injected into the enclosing scope
         union
@@ -128,7 +152,7 @@ namespace util
             T _value;
         };
 
-        const bool _has_value;
+        bool _has_value;
     };
 }
 }

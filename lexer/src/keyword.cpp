@@ -1,5 +1,6 @@
 #include <halberd/keyword.h>
 
+// halberd::util
 #include <halberd/util/string.h> // halberd::util::length
 
 #include <cstdint> // uint8_t
