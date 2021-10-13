@@ -1,11 +1,11 @@
 #pragma once
 
+// halberd::meta
+#include <halberd/meta/type_list.h>
+#include <halberd/meta/dependent.h>
+
 // halberd::util
 #include <halberd/util/optional.h>
-
-//TODO: make the meta headers a header-only library independent of lexer
-#include <../../lexer/include/halberd/meta/type_list.h>
-#include <../../lexer/include/halberd/meta/dependent.h>
 
 #include <tuple> // std::tuple, std::tuple_element, std::tuple_cat, std::make_tuple
 #include <type_traits> // std::true_type, std::is_same, std::decay_t, std::enable_if_t

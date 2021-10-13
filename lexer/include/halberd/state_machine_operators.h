@@ -3,13 +3,14 @@
 #include "state_index.h"
 #include "state_machine.h"
 
-#include "meta/dependent.h"
-#include "meta/type_list.h"
-#include "meta/type_wrapper.h"
-#include "meta/value_set.h"
-#include "meta/value_list.h"
-#include "meta/value_list_transform.h"
-#include "meta/value_wrapper.h"
+// halberd::meta
+#include <halberd/meta/dependent.h>
+#include <halberd/meta/type_list.h>
+#include <halberd/meta/type_wrapper.h>
+#include <halberd/meta/value_set.h>
+#include <halberd/meta/value_list.h>
+#include <halberd/meta/value_list_transform.h>
+#include <halberd/meta/value_wrapper.h>
 
 
 namespace halberd

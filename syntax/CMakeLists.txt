@@ -28,8 +28,7 @@ set(HEADER include/halberd/const_visit.h
            include/halberd/visit.h
            include/halberd/visitor.h
            include/halberd/visitor_function.h
-           include/halberd/visitor_traversal.h
-           include/halberd/util/overload.h)
+           include/halberd/visitor_traversal.h)
 
 set(SOURCE src/const_visit.cpp
            src/const_visitor_traversal.cpp

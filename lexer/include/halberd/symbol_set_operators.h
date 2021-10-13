@@ -2,7 +2,8 @@
 
 #include "symbol_set.h"
 
-#include "meta/value_set.h"
+// halberd::meta
+#include <halberd/meta/value_set.h>
 
 
 namespace halberd

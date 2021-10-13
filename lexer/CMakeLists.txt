@@ -16,15 +16,7 @@ set(HEADER include/halberd/keyword.h
            include/halberd/symbol_set.h
            include/halberd/symbol_set_array.h
            include/halberd/symbol_set_operators.h
-           include/halberd/token.h
-           include/halberd/meta/dependent.h
-           include/halberd/meta/type_list.h
-           include/halberd/meta/type_wrapper.h
-           include/halberd/meta/value_list.h
-           include/halberd/meta/value_list_transform.h
-           include/halberd/meta/value_set.h
-           include/halberd/meta/value_wrapper.h
-           include/halberd/util/string.h)
+           include/halberd/token.h)
 
 set(SOURCE src/keyword.cpp
            src/lexer.cpp
@@ -36,6 +28,8 @@ set(SOURCE src/keyword.cpp
 add_library(halberd_lexer STATIC ${SOURCE} ${HEADER})
 
 target_include_directories(halberd_lexer PUBLIC ${INCLUDE})
+
+target_link_libraries(halberd_lexer PUBLIC halberd_meta halberd_util)
 
 target_compile_features(halberd_lexer PUBLIC cxx_std_14)
 set_target_properties(halberd_lexer PROPERTIES CXX_EXTENSIONS OFF)

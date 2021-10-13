@@ -1,7 +1,8 @@
 #pragma once
 
-#include "meta/value_list.h"
-#include "meta/value_set.h"
+// halberd::meta
+#include <halberd/meta/value_list.h>
+#include <halberd/meta/value_set.h>
 
 
 namespace halberd

@@ -2,7 +2,8 @@
 
 #include "symbol_set.h"
 
-#include "meta/dependent.h"
+// halberd::meta
+#include <halberd/meta/dependent.h>
 
 #include <iterator> // std::begin, std::end
 

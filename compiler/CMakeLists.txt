@@ -17,8 +17,7 @@ set(HEADER include/halberd/compiler.h
            include/halberd/transform/transform_operator_unary_postfix.h
            include/halberd/transform/transform_operator_unary_prefix.h
            include/halberd/transform/transform_statement_list.h
-           include/halberd/transform/transform_variable_declaration.h
-           include/halberd/util/type.h)
+           include/halberd/transform/transform_variable_declaration.h)
 
 set(SOURCE src/compiler.cpp
            src/transform/transform_expression_statement.cpp
@@ -35,7 +34,7 @@ add_library(halberd_compiler STATIC ${SOURCE} ${HEADER})
 
 target_include_directories(halberd_compiler PUBLIC ${INCLUDE})
 
-target_link_libraries(halberd_compiler PUBLIC halberd_lexer halberd_parser halberd_syntax)
+target_link_libraries(halberd_compiler PUBLIC halberd_lexer halberd_parser halberd_syntax halberd_util)
 
 target_compile_features(halberd_compiler PUBLIC cxx_std_14)
 set_target_properties(halberd_compiler PROPERTIES CXX_EXTENSIONS OFF)

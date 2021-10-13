@@ -6,7 +6,8 @@
 #include "symbol_set.h"
 #include "symbol_set_array.h"
 
-#include "meta/dependent.h"
+// halberd::meta
+#include <halberd/meta/dependent.h>
 
 #include <iterator> // std::begin, std::end
 

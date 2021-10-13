@@ -3,7 +3,7 @@
 #include "source_buffer.h"
 
 // halberd::util
-#include "util/enum_flags.h"
+#include <halberd/util/enum_flags.h>
 
 #include <memory> // std::shared_ptr
 #include <utility> // std::declval, std::pair
