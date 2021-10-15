@@ -28,6 +28,8 @@ namespace syntax
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
 
+        void reset_operand(std::unique_ptr<expression> exp);
+
         expression& get_operand();
         const expression& get_operand() const;
 

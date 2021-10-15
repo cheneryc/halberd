@@ -72,3 +72,24 @@ void ns::visitor_traversal::visit(variable_declaration_statement& vds)
     ns::visit(*this, vds.get_variable_declaration());
     visit_end(vds);
 }
+
+void ns::visitor_traversal::visit_begin(expression_statement&) {}
+void ns::visitor_traversal::visit_end(expression_statement&) {}
+
+void ns::visitor_traversal::visit_begin(operator_assignment&) {}
+void ns::visitor_traversal::visit_end(operator_assignment&) {}
+
+void ns::visitor_traversal::visit_begin(operator_binary&) {}
+void ns::visitor_traversal::visit_end(operator_binary&) {}
+
+void ns::visitor_traversal::visit_begin(operator_unary_postfix&) {}
+void ns::visitor_traversal::visit_end(operator_unary_postfix&) {}
+
+void ns::visitor_traversal::visit_begin(operator_unary_prefix&) {}
+void ns::visitor_traversal::visit_end(operator_unary_prefix&) {}
+
+void ns::visitor_traversal::visit_begin(statement_list&) {}
+void ns::visitor_traversal::visit_end(statement_list&) {}
+
+void ns::visitor_traversal::visit_begin(variable_declaration_statement&) {}
+void ns::visitor_traversal::visit_end(variable_declaration_statement&) {}

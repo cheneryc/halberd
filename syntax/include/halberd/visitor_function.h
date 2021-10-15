@@ -46,9 +46,11 @@ namespace syntax
     {
     } visit_end_tag_v;
 
-    template<typename Fn>
-    class visitor_function : public visitor_traversal
+    template<typename Fn, typename V = visitor_traversal>
+    class visitor_function : public V
     {
+        using super_t = V;
+
     public:
         template<typename A>
         visitor_function(A&& arg) noexcept : _fn(std::forward<A>(arg))
@@ -71,74 +73,93 @@ namespace syntax
             detail::try_invoke(_fn, dec);
         }
 
+        void visit(variable_identifier& id) override
+        {
+            detail::try_invoke(_fn, id);
+        }
+
         void visit_begin(expression_statement& s) override
         {
             detail::try_invoke(_fn, s, visit_begin_tag_v);
+            super_t::visit_begin(s);
         }
 
         void visit_begin(operator_assignment& op) override
         {
             detail::try_invoke(_fn, op, visit_begin_tag_v);
+            super_t::visit_begin(op);
         }
 
         void visit_begin(operator_binary& op) override
         {
             detail::try_invoke(_fn, op, visit_begin_tag_v);
+            super_t::visit_begin(op);
         }
 
         void visit_begin(operator_unary_postfix& op) override
         {
             detail::try_invoke(_fn, op, visit_begin_tag_v);
+            super_t::visit_begin(op);
         }
 
         void visit_begin(operator_unary_prefix& op) override
         {
             detail::try_invoke(_fn, op, visit_begin_tag_v);
+            super_t::visit_begin(op);
         }
 
-        void visit_begin(statement_list& op) override
+        void visit_begin(statement_list& s) override
         {
-            detail::try_invoke(_fn, op, visit_begin_tag_v);
+            detail::try_invoke(_fn, s, visit_begin_tag_v);
+            super_t::visit_begin(s);
         }
 
         void visit_begin(variable_declaration_statement& s) override
         {
             detail::try_invoke(_fn, s, visit_begin_tag_v);
+            super_t::visit_begin(s);
         }
 
         void visit_end(expression_statement& s) override
         {
+            super_t::visit_end(s);
             detail::try_invoke(_fn, s, visit_end_tag_v);
         }
 
         void visit_end(operator_assignment& op) override
         {
+            super_t::visit_end(op);
             detail::try_invoke(_fn, op, visit_end_tag_v);
         }
 
         void visit_end(operator_binary& op) override
         {
+            super_t::visit_end(op);
             detail::try_invoke(_fn, op, visit_end_tag_v);
         }
 
         void visit_end(operator_unary_postfix& op) override
         {
+            super_t::visit_end(op);
             detail::try_invoke(_fn, op, visit_end_tag_v);
         }
 
         void visit_end(operator_unary_prefix& op) override
         {
+            super_t::visit_end(op);
             detail::try_invoke(_fn, op, visit_end_tag_v);
         }
 
-        void visit_end(statement_list& op) override
+        void visit_end(statement_list& s) override
         {
-            detail::try_invoke(_fn, op, visit_end_tag_v);
+            super_t::visit_end(s);
+            detail::try_invoke(_fn, s, visit_end_tag_v);
         }
 
-        void visit_end(variable_declaration_statement& op) override
+        void visit_end(variable_declaration_statement& s) override
         {
-            detail::try_invoke(_fn, op, visit_end_tag_v);
+            super_t::visit_end(s);
+            detail::try_invoke(_fn, s, visit_end_tag_v);
         }
 
         Fn _fn;
@@ -150,6 +171,16 @@ namespace syntax
         auto fn = util::overload(std::forward<Fs>(funcs)...);
 
         return visitor_function<decltype(fn)> {
+            std::move(fn)
+        };
+    }
+
+    template<typename V, typename... Fs>
+    auto make_visitor_function(Fs&&... funcs)
+    {
+        auto fn = util::overload(std::forward<Fs>(funcs)...);
+
+        return visitor_function<decltype(fn), V> {
             std::move(fn)
         };
     }

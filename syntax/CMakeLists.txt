@@ -25,9 +25,12 @@ set(HEADER include/halberd/const_visit.h
            include/halberd/type.h
            include/halberd/variable_declaration.h
            include/halberd/variable_declaration_statement.h
+           include/halberd/variable_identifier.h
            include/halberd/visit.h
            include/halberd/visitor.h
+           include/halberd/visitor_antecedent.h
            include/halberd/visitor_function.h
+           include/halberd/visitor_reset.h
            include/halberd/visitor_traversal.h)
 
 set(SOURCE src/const_visit.cpp
@@ -48,7 +51,9 @@ set(SOURCE src/const_visit.cpp
            src/tree.cpp
            src/variable_declaration.cpp
            src/variable_declaration_statement.cpp
+           src/variable_identifier.cpp
            src/visit.cpp
+           src/visitor_antecedent.cpp
            src/visitor_traversal.cpp)
 
 add_library(halberd_syntax STATIC ${SOURCE} ${HEADER})

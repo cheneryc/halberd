@@ -16,6 +16,7 @@ namespace syntax
     class statement_list;
     class variable_declaration_statement;
     class variable_declaration;
+    class variable_identifier;
 
     struct visitor
     {
@@ -31,6 +32,7 @@ namespace syntax
         virtual void visit(statement_list&) = 0;
         virtual void visit(variable_declaration_statement&) = 0;
         virtual void visit(variable_declaration&) = 0;
+        virtual void visit(variable_identifier&) = 0;
     };
 }
 }

@@ -22,6 +22,8 @@ namespace syntax
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
 
+        void reset_expression(std::unique_ptr<expression> exp);
+
         expression& get_expression();
         const expression& get_expression() const;
 

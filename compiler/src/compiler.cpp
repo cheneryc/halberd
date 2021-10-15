@@ -14,10 +14,14 @@
 #include <halberd/operator_unary_postfix.h>
 #include <halberd/operator_unary_prefix.h>
 #include <halberd/variable_declaration.h>
+#include <halberd/variable_identifier.h>
 #include <halberd/visit.h>
+#include <halberd/visitor_antecedent.h>
 #include <halberd/visitor_function.h>
+#include <halberd/visitor_reset.h>
 
-#include <set> // std::set
+#include <map> // std::map
+#include <string> // std::string
 #include <iterator> // std::make_move_iterator
 #include <type_traits> // std::underlying_type_t
 
@@ -64,19 +68,21 @@ namespace
 
     void validate_identifiers(halberd::syntax::node& node)
     {
-        std::set<std::string> identifiers;
+        std::map<std::string, halberd::syntax::variable_declaration*> identifiers;
 
-        auto visitor = halberd::syntax::make_visitor_function(
+        halberd::syntax::visitor_antecedent* visitor_ptr = nullptr;
+
+        auto visitor = halberd::syntax::make_visitor_function<halberd::syntax::visitor_antecedent>(
             [&identifiers](halberd::syntax::variable_declaration& dec) mutable
         {
-            auto result = identifiers.emplace(dec.get_name());
+            auto result = identifiers.emplace(dec.get_name(), &dec);
 
             if (!result.second)
             {
                 throw std::exception(); // Error, duplicate identifier
             }
         },
-            [&identifiers](halberd::syntax::identifier_expression& exp)
+            [&identifiers, &visitor_ptr](halberd::syntax::identifier_expression& exp)
         {
             auto it = identifiers.find(exp.get_identifier());
 
@@ -85,8 +91,11 @@ namespace
                 throw std::exception(); // Error, unknown identifier
             }
 
-            //TODO: replace the identifier_expression with a pointer/reference to the variable declaration
+            halberd::syntax::visitor_reset<halberd::syntax::expression> visitor_reset(exp, std::make_unique<halberd::syntax::variable_identifier>(it->second));
+            halberd::syntax::visit(visitor_reset, visitor_ptr->get_antecedent());
         });
+
+        visitor_ptr = &visitor;
 
         halberd::syntax::visit(visitor, node);
     }

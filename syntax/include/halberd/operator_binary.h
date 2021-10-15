@@ -31,6 +31,9 @@ namespace syntax
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
 
+        void reset_operand_lhs(std::unique_ptr<expression> exp);
+        void reset_operand_rhs(std::unique_ptr<expression> exp);
+
         expression& get_operand_lhs();
         const expression& get_operand_lhs() const;
 

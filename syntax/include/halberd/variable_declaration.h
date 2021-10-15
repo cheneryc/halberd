@@ -1,6 +1,7 @@
 #pragma once
 
 #include "declaration.h"
+#include "type.h"
 
 #include <string> // std::string
 
@@ -16,10 +17,15 @@ namespace syntax
     class variable_declaration : public declaration
     {
     public:
-        variable_declaration(std::string name) noexcept;
+        variable_declaration(type t, std::string name) noexcept;
 
         void accept(visitor& v) override;
         void accept(const_visitor& cv) const override;
+
+        type get_type() const;
+
+    private:
+        type _type;
     };
 }
 }

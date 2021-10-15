@@ -22,6 +22,11 @@ void ns::operator_unary_prefix::accept(const_visitor& cv) const
     cv.visit(*this);
 }
 
+void ns::operator_unary_prefix::reset_operand(std::unique_ptr<expression> exp)
+{
+    _operand = std::move(exp);
+}
+
 ns::expression& ns::operator_unary_prefix::get_operand()
 {
     return *_operand;

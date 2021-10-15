@@ -23,6 +23,11 @@ void ns::expression_statement::accept(const_visitor& cv) const
     cv.visit(*this);
 }
 
+void ns::expression_statement::reset_expression(std::unique_ptr<expression> exp)
+{
+    _exp = std::move(exp);
+}
+
 ns::expression& ns::expression_statement::get_expression()
 {
     return *_exp;

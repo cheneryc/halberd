@@ -24,6 +24,16 @@ void ns::operator_assignment::accept(const_visitor& cv) const
     cv.visit(*this);
 }
 
+void ns::operator_assignment::reset_operand_lhs(std::unique_ptr<expression> exp)
+{
+    _operand_lhs = std::move(exp);
+}
+
+void ns::operator_assignment::reset_operand_rhs(std::unique_ptr<expression> exp)
+{
+    _operand_rhs = std::move(exp);
+}
+
 ns::expression& ns::operator_assignment::get_operand_lhs()
 {
     return *_operand_lhs;
