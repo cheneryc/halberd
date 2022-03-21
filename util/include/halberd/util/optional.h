@@ -126,6 +126,8 @@ namespace util
             // _value requires explicit constructor call (via placement new) to activate the member
             new (&_value) T(std::move(_value));
             _has_value = true;
+
+            return *this;
         }
 
         optional& operator=(const T& value)
@@ -138,6 +140,8 @@ namespace util
             // _value requires explicit constructor call (via placement new) to activate the member
             new (&_value) T(_value);
             _has_value = true;
+
+            return *this;
         }
 
     private:
