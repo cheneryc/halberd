@@ -65,97 +65,18 @@ namespace
 
         return ss.str();
     }
-
-    void validate_identifiers(halberd::syntax::node& node)
-    {
-        std::map<std::string, halberd::syntax::variable_declaration*> identifiers;
-
-        halberd::syntax::visitor_antecedent* visitor_ptr = nullptr;
-
-        auto visitor = halberd::syntax::make_visitor_function<halberd::syntax::visitor_antecedent>(
-            [&identifiers](halberd::syntax::variable_declaration& dec) mutable
-        {
-            auto result = identifiers.emplace(dec.get_name(), &dec);
-
-            if (!result.second)
-            {
-                throw std::exception(); // Error, duplicate identifier
-            }
-        },
-            [&identifiers, &visitor_ptr](halberd::syntax::identifier_expression& exp)
-        {
-            auto it = identifiers.find(exp.get_identifier());
-
-            if (it == identifiers.end())
-            {
-                throw std::exception(); // Error, unknown identifier
-            }
-
-            halberd::syntax::visitor_reset<halberd::syntax::expression> visitor_reset(exp, std::make_unique<halberd::syntax::variable_identifier>(it->second));
-            halberd::syntax::visit(visitor_reset, visitor_ptr->get_antecedent());
-        });
-
-        visitor_ptr = &visitor;
-
-        halberd::syntax::visit(visitor, node);
-    }
-
-    void validate_types(halberd::syntax::node& node)
-    {
-        auto visitor = halberd::syntax::make_visitor_function(
-            [](halberd::syntax::operator_assignment& op, halberd::syntax::visit_end_tag)
-        {
-            auto& lhs_exp = op.get_operand_lhs();
-            auto  lhs_type = lhs_exp.get_type();
-
-            auto& rhs_exp = op.get_operand_rhs();
-            auto  rhs_type = rhs_exp.get_type();
-
-            if (lhs_type != rhs_type)
-            {
-                throw std::exception(); // Error, type mismatch
-            }
-
-            op.set_type(lhs_type);
-        },
-            [](halberd::syntax::operator_binary& op, halberd::syntax::visit_end_tag)
-        {
-            auto& lhs_exp = op.get_operand_lhs();
-            auto  lhs_type = lhs_exp.get_type();
-
-            auto& rhs_exp = op.get_operand_rhs();
-            auto  rhs_type = rhs_exp.get_type();
-
-            if (lhs_type != rhs_type)
-            {
-                throw std::exception(); // Error, type mismatch
-            }
-
-            op.set_type(lhs_type);
-        },
-            [](halberd::syntax::operator_unary_prefix& op, halberd::syntax::visit_end_tag)
-        {
-            op.set_type(op.get_operand().get_type()); // Propagate the operand's type to the operator
-        },
-            [](halberd::syntax::operator_unary_postfix& op, halberd::syntax::visit_end_tag)
-        {
-            op.set_type(op.get_operand().get_type()); // Propagate the operand's type to the operator
-        });
-
-        halberd::syntax::visit(visitor, node);
-    }
 }
 
 bool ns::compile(const char* src)
 {
-    auto result = compile_rule(rule::statement_list, src);
+    auto result = parse(rule::statement_list, src);
 
     if (result)
     {
         auto& node = *result.get();
 
-        validate_identifiers(node);
-        validate_types(node);
+        check_identifiers(node);
+        check_types(node);
 
         return true;
     }
@@ -165,14 +86,14 @@ bool ns::compile(const char* src)
 
 bool ns::compile(std::vector<std::unique_ptr<lexer::token>> tokens)
 {
-    auto result = compile_rule(rule::statement_list, std::move(tokens));
+    auto result = parse(rule::statement_list, std::move(tokens));
 
     if (result)
     {
         auto& node = *result.get();
 
-        validate_identifiers(node);
-        validate_types(node);
+        check_identifiers(node);
+        check_types(node);
 
         return true;
     }
@@ -180,7 +101,7 @@ bool ns::compile(std::vector<std::unique_ptr<lexer::token>> tokens)
     return false;
 }
 
-halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, const char* src)
+halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::parse(rule r, const char* src)
 {
     lexer::scanner scanner(lexer::get_smv_union(), src);
 
@@ -200,7 +121,7 @@ halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compil
     return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
 }
 
-halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compile_rule(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)
+halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::parse(rule r, std::vector<std::unique_ptr<lexer::token>> tokens)
 {
     auto token_source = parser::make_source(
         [it     = std::make_move_iterator(tokens.begin()),
@@ -218,4 +139,84 @@ halberd::parser::parse_result<std::unique_ptr<halberd::syntax::node>> ns::compil
     using token_ptr_t = lexer::token*;
 
     return make_rule_parser<token_t, token_ptr_t>(r).apply(token_source);
+}
+
+void ns::check_identifiers(syntax::node& node)
+{
+    // Performs name binding - associating identifiers with the relevant entity
+    std::map<std::string, syntax::variable_declaration*> identifiers;
+
+    syntax::visitor_antecedent* visitor_ptr = nullptr;
+
+    auto visitor = syntax::make_visitor_function<syntax::visitor_antecedent>(
+        [&identifiers](syntax::variable_declaration& dec) mutable
+    {
+        auto result = identifiers.emplace(dec.get_name(), &dec);
+
+        if (!result.second)
+        {
+            throw std::exception(); // Error, duplicate identifier
+        }
+    },
+        [&identifiers, &visitor_ptr](syntax::identifier_expression& exp)
+    {
+        auto it = identifiers.find(exp.get_identifier());
+
+        if (it == identifiers.end())
+        {
+            throw std::exception(); // Error, unknown identifier
+        }
+
+        syntax::visitor_reset<syntax::expression> visitor_reset(exp, std::make_unique<syntax::variable_identifier>(it->second));
+        syntax::visit(visitor_reset, visitor_ptr->get_antecedent());
+    });
+
+    visitor_ptr = &visitor;
+
+    syntax::visit(visitor, node);
+}
+
+void ns::check_types(syntax::node& node)
+{
+    auto visitor = syntax::make_visitor_function(
+        [](syntax::operator_assignment& op, syntax::visit_end_tag)
+    {
+        auto& lhs_exp = op.get_operand_lhs();
+        auto  lhs_type = lhs_exp.get_type();
+
+        auto& rhs_exp = op.get_operand_rhs();
+        auto  rhs_type = rhs_exp.get_type();
+
+        if (lhs_type != rhs_type)
+        {
+            throw std::exception(); // Error, type mismatch
+        }
+
+        op.set_type(lhs_type);
+    },
+        [](syntax::operator_binary& op, syntax::visit_end_tag)
+    {
+        auto& lhs_exp = op.get_operand_lhs();
+        auto  lhs_type = lhs_exp.get_type();
+
+        auto& rhs_exp = op.get_operand_rhs();
+        auto  rhs_type = rhs_exp.get_type();
+
+        if (lhs_type != rhs_type)
+        {
+            throw std::exception(); // Error, type mismatch
+        }
+
+        op.set_type(lhs_type);
+    },
+        [](syntax::operator_unary_prefix& op, syntax::visit_end_tag)
+    {
+        op.set_type(op.get_operand().get_type()); // Propagate the operand's type to the operator
+    },
+        [](syntax::operator_unary_postfix& op, syntax::visit_end_tag)
+    {
+        op.set_type(op.get_operand().get_type()); // Propagate the operand's type to the operator
+    });
+
+    syntax::visit(visitor, node);
 }

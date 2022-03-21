@@ -49,6 +49,8 @@ namespace syntax
     template<typename N>
     class visitor_reset : public visitor
     {
+        static_assert(std::is_base_of<node, N>::value, "visitor_reset: template parameter N must derive from syntax::node");
+
     public:
         visitor_reset(N& node_old, std::unique_ptr<N>&& node_new) :
             _node_old(std::ref(node_old)),

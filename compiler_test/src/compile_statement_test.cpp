@@ -12,22 +12,22 @@ namespace
 
     auto compile_statement(const char* src)
     {
-        return ns::compile_rule(ns::rule::statement, src);
+        return ns::parse(ns::rule::statement, src);
     }
 
     auto compile_statement(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::statement, std::move(tokens));
+        return ns::parse(ns::rule::statement, std::move(tokens));
     }
 
     auto compile_statement_list(const char* src)
     {
-        return ns::compile_rule(ns::rule::statement_list, src);
+        return ns::parse(ns::rule::statement_list, src);
     }
 
     auto compile_statement_list(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::statement_list, std::move(tokens));
+        return ns::parse(ns::rule::statement_list, std::move(tokens));
     }
 }
 

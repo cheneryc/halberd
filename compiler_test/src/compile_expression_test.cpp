@@ -18,72 +18,72 @@ namespace
 
     auto compile_expression(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression, src);
+        return ns::parse(ns::rule::expression, src);
     }
 
     auto compile_expression(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression, std::move(tokens));
+        return ns::parse(ns::rule::expression, std::move(tokens));
     }
 
     auto compile_expression_terminal(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_terminal, src);
+        return ns::parse(ns::rule::expression_terminal, src);
     }
 
     auto compile_expression_terminal(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_terminal, std::move(tokens));
+        return ns::parse(ns::rule::expression_terminal, std::move(tokens));
     }
 
     auto compile_expression_postfix(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_postfix, src);
+        return ns::parse(ns::rule::expression_postfix, src);
     }
 
     auto compile_expression_postfix(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_postfix, std::move(tokens));
+        return ns::parse(ns::rule::expression_postfix, std::move(tokens));
     }
 
     auto compile_expression_prefix(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_prefix, src);
+        return ns::parse(ns::rule::expression_prefix, src);
     }
 
     auto compile_expression_prefix(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_prefix, std::move(tokens));
+        return ns::parse(ns::rule::expression_prefix, std::move(tokens));
     }
 
     auto compile_expression_multiplicative(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_multiplicative, src);
+        return ns::parse(ns::rule::expression_multiplicative, src);
     }
 
     auto compile_expression_multiplicative(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_multiplicative, std::move(tokens));
+        return ns::parse(ns::rule::expression_multiplicative, std::move(tokens));
     }
 
     auto compile_expression_additive(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_additive, src);
+        return ns::parse(ns::rule::expression_additive, src);
     }
 
     auto compile_expression_additive(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_additive, std::move(tokens));
+        return ns::parse(ns::rule::expression_additive, std::move(tokens));
     }
 
     auto compile_expression_assignment(const char* src)
     {
-        return ns::compile_rule(ns::rule::expression_assignment, src);
+        return ns::parse(ns::rule::expression_assignment, src);
     }
 
     auto compile_expression_assignment(std::vector<std::unique_ptr<halberd::lexer::token>> tokens)
     {
-        return ns::compile_rule(ns::rule::expression_assignment, std::move(tokens));
+        return ns::parse(ns::rule::expression_assignment, std::move(tokens));
     }
 }
 
