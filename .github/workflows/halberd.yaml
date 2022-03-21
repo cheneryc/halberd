@@ -1,9 +1,11 @@
 name: halberd
 
 on:
+  workflow_dispatch:
   push:
     branches: [ $default-branch ]
   pull_request:
+    types: [opened, edited]
     branches: [ $default-branch ]
 
 env:
