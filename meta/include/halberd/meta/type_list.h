@@ -19,21 +19,6 @@ namespace meta
 
     // Sequence operations
 
-    template<typename T, typename... Ts, typename Fn>
-    constexpr auto transform(type_list<T, Ts...>, Fn fn) noexcept
-    {
-        constexpr auto type_wrap = fn(type_wrapper_v<T>);
-        constexpr auto types_rec = transform(type_list_v<Ts...>, fn);
-
-        return prepend(type_wrap, types_rec);
-    }
-
-    template<typename Fn>
-    constexpr auto transform(type_list<>, Fn fn) noexcept
-    {
-        return type_list_v<>;
-    }
-
     namespace detail
     {
         template<typename TT, typename TF>
@@ -82,6 +67,12 @@ namespace meta
     constexpr auto concat(type_list<T1s...>, type_list<T2s...>, Ts...) noexcept
     {
         return concat(type_list_v<T1s..., T2s...>, Ts()...);
+    }
+
+    template<typename... Ts>
+    constexpr auto concat(type_wrapper<Ts>...) noexcept
+    {
+        return type_list_v<Ts...>;
     }
 
     // Binary operations

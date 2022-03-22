@@ -45,10 +45,9 @@ namespace util
         }
 
         // Allow class template instantiations with a different template parameter to access
-        // this instantiations's private members from within the covariant move constructor
+        // this instantiations's private members from within the covariant move constructors
         template<typename U>
-        template<typename V>
-        friend optional<U>::optional(optional<V>&&);
+        friend class optional;
 
         template<typename U>
         optional(optional<U>&& other) : _value_default(), _has_value(other._has_value)
@@ -60,12 +59,6 @@ namespace util
                 new (&_value) T(std::move(other._value)); // A moved-from optional still contains a value, but the value itself is moved-from
             }
         }
-
-        // Allow class template instantiations with a different template parameter to access
-        // this instantiations's private members from within the covariant move constructor
-        template<typename U>
-        template<typename V>
-        friend optional<U>::optional(const optional<V>&);
 
         template<typename U>
         optional(const optional<U>& other) : _value_default(), _has_value(other._has_value)

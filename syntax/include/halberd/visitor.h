@@ -18,8 +18,9 @@ namespace syntax
     class variable_declaration;
     class variable_identifier;
 
-    struct visitor
+    class visitor
     {
+    public:
         virtual ~visitor() = default;
 
         virtual void visit(expression_statement&) = 0;

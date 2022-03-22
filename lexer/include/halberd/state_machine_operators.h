@@ -138,15 +138,15 @@ namespace lexer
                     get_alphabet(state_v<TSym, Idx1, B1, TTag, Tag1, TTrans1...>) |
                     get_alphabet(state_v<TSym, Idx2, B2, TTag, Tag2, TTrans2...>);
 
-                using fn_create_state_transition = fn_create_state_transition<
-                    state<TSym, Idx1, B1, TTag, Tag1, TTrans1...>,
-                    state<TSym, Idx2, B2, TTag, Tag2, TTrans2...>>;
-
                 constexpr auto combined_idx = get_combined_index(Idx1, Idx2);
                 constexpr auto combined_tag = get_combined_tag(B1, Tag1, B2, Tag2);
 
+                using fn_transform = fn_create_state_transition<
+                    state<TSym, Idx1, B1, TTag, Tag1, TTrans1...>,
+                    state<TSym, Idx2, B2, TTag, Tag2, TTrans2...>>;
+
                 //TODO: merge transitions that go to the same 'to' state (currently each symbol results in a separate transition)
-                constexpr auto state_transition_list = meta::transform_values(meta::set_to_list(state_alphabet), fn_create_state_transition());
+                constexpr auto state_transition_list = meta::transform(meta::set_to_list(state_alphabet), fn_transform());
                 constexpr auto state = make_state<TSym, combined_idx, B1 || B2, TTag, combined_tag>(state_transition_list);
 
                 return meta::wrap(state);

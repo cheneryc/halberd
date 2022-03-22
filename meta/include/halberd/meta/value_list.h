@@ -1,5 +1,6 @@
 #pragma once
 
+#include "value_wrapper.h"
 #include "dependent.h"
 
 #include <type_traits> // std::conditional_t, std::true_type, std::false_type
@@ -52,6 +53,12 @@ namespace meta
     constexpr auto concat(value_list<T, V1s...>, value_list<T, V2s...>, Ts...) noexcept
     {
         return concat(value_list_v<T, V1s..., V2s...>, Ts()...);
+    }
+
+    template<typename T, T... Vs>
+    constexpr auto concat(value_wrapper<T, Vs>...) noexcept
+    {
+        return value_list_v<T, Vs...>;
     }
 
     // Search operations

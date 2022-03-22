@@ -4,6 +4,7 @@ set(INCLUDE include)
 
 set(HEADER include/halberd/meta/dependent.h
            include/halberd/meta/type_list.h
+           include/halberd/meta/type_list_transform.h
            include/halberd/meta/type_wrapper.h
            include/halberd/meta/value_list.h
            include/halberd/meta/value_list_transform.h
