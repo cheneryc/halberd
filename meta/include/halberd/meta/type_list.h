@@ -17,6 +17,20 @@ namespace meta
     template<typename... Ts>
     constexpr type_list<Ts...> type_list_v;
 
+    // Capacity
+
+    template<typename... Ts>
+    constexpr std::size_t size(type_list<Ts...>) noexcept
+    {
+        return sizeof...(Ts);
+    }
+
+    template<typename... Ts>
+    constexpr bool empty(type_list<Ts...>) noexcept
+    {
+        return size(type_list_v<Ts...>) == 0U;
+    }
+
     // Sequence operations
 
     namespace detail
@@ -55,6 +69,21 @@ namespace meta
         return type_wrapper_v<TEnd>;
     }
 
+    template<typename T, typename... Ts, typename Fn>
+    constexpr auto remove_if(type_list<T, Ts...>, Fn fn) noexcept
+    {
+        constexpr auto type_wrap = type_wrapper_v<T>;
+        constexpr auto type_rec = remove_if(type_list_v<Ts...>, fn);
+
+        return detail::static_if<fn(type_wrap)>(type_rec, prepend(type_wrap, type_rec));
+    }
+
+    template<typename Fn>
+    constexpr auto remove_if(type_list<>, Fn fn) noexcept
+    {
+        return type_list_v<>;
+    }
+
     // Variadic operations
 
     template<typename... Ts>
@@ -76,6 +105,12 @@ namespace meta
     }
 
     // Binary operations
+
+    template<typename... T1s, typename... T2s>
+    constexpr bool equals(type_list<T1s...>, type_list<T2s...>) noexcept
+    {
+        return std::is_same<type_list<T1s...>, type_list<T2s...>>::value;
+    }
 
     template<typename T, typename... Ts>
     constexpr auto prepend(type_wrapper<T>, type_list<Ts...>) noexcept

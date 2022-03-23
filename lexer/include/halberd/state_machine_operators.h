@@ -44,6 +44,17 @@ namespace lexer
             }
         };
 
+        //C++17: investigate if this class can be replaced with a constexpr lambda
+        template<typename TSym, state_index_t IdxRemove>
+        struct fn_remove_transition
+        {
+            template<state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+            constexpr bool operator()(meta::type_wrapper<state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>>) const noexcept
+            {
+                return IdxTo == IdxRemove; // Filter out transitions to [e, e]
+            }
+        };
+
         template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans, TSym Sym>
         constexpr state_index_t get_transition_index(state<TSym, Idx, B, TTag, Tag, TTrans...>, basic_symbol<TSym, Sym>, state_index_t idx_end) noexcept
         {
@@ -116,7 +127,6 @@ namespace lexer
             template<state_index_t Idx1, bool B1, TTag Tag1, typename... TTrans1, state_index_t Idx2, bool B2, TTag Tag2, typename... TTrans2>
             struct fn_create_state_transition<state<TSym, Idx1, B1, TTag, Tag1, TTrans1...>, state<TSym, Idx2, B2, TTag, Tag2, TTrans2...>>
             {
-                //TODO: filter out transitions to [e, e]
                 template<TSym Sym>
                 constexpr auto operator()(meta::value_wrapper<TSym, Sym>) const noexcept
                 {
@@ -145,9 +155,14 @@ namespace lexer
                     state<TSym, Idx1, B1, TTag, Tag1, TTrans1...>,
                     state<TSym, Idx2, B2, TTag, Tag2, TTrans2...>>;
 
-                //TODO: merge transitions that go to the same 'to' state (currently each symbol results in a separate transition)
+                using fn_filter = fn_remove_transition<TSym, get_combined_index(sizeof...(TStates1), sizeof...(TStates2))>;
+
                 constexpr auto state_transition_list = meta::transform(meta::set_to_list(state_alphabet), fn_transform());
-                constexpr auto state = make_state<TSym, combined_idx, B1 || B2, TTag, combined_tag>(state_transition_list);
+                constexpr auto state_transition_list_filtered = meta::remove_if(state_transition_list, fn_filter());
+
+                //TODO: merge transitions that go to the same 'to' state (currently each symbol results in a separate transition)
+
+                constexpr auto state = make_state<TSym, combined_idx, B1 || B2, TTag, combined_tag>(state_transition_list_filtered);
 
                 return meta::wrap(state);
             }
