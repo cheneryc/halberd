@@ -27,18 +27,16 @@ namespace
     template<int IFind>
     constexpr int_tag_finder<IFind> int_tag_finder_v;
 
-    template<int IRemove>
-    struct int_tag_remover
+    struct int_tag_accumulator
     {
-        template<int I>
-        constexpr bool operator()(ns::type_wrapper<int_tag<I>>) const noexcept
+        template<int I, int Init>
+        constexpr auto operator()(ns::type_wrapper<int_tag<Init>>, ns::type_wrapper<int_tag<I>>) const noexcept
         {
-            return I == IRemove;
+            return ns::type_wrapper_v<int_tag<Init + I>>;
         }
     };
 
-    template<int IRemove>
-    constexpr int_tag_remover<IRemove> int_tag_remover_v;
+    using int_tag_init = int_tag<1>;
 }
 
 TEST(type_list, find_if_empty)
@@ -81,42 +79,26 @@ TEST(type_list, find_if_multi_types_end)
     ASSERT_EQ(int_tag_end::value, ns::unwrap(find_result));
 }
 
-TEST(type_list, remove_if_empty)
+TEST(type_list, accumulate_empty)
 {
-    constexpr auto remover = int_tag_remover_v<0>;
-    constexpr auto remover_result = ns::remove_if(ns::type_list_v<>, remover);
+    constexpr auto accumulator = int_tag_accumulator();
+    constexpr auto accumulator_result = ns::accumulate(ns::type_list_v<>, ns::type_wrapper_v<int_tag_init>, accumulator);
 
-    ASSERT_TRUE(ns::empty(remover_result));
+    ASSERT_EQ(int_tag_init::value, ns::unwrap(accumulator_result));
 }
 
-TEST(type_list, remove_if_single_type)
+TEST(type_list, accumulate_single_type)
 {
-    constexpr auto remover = int_tag_remover_v<0>;
-    constexpr auto remover_result = ns::remove_if(ns::type_list_v<int_tag<0>>, remover);
+    constexpr auto accumulator = int_tag_accumulator();
+    constexpr auto accumulator_result = ns::accumulate(ns::type_list_v<int_tag<1>>, ns::type_wrapper_v<int_tag_init>, accumulator);
 
-    ASSERT_TRUE(ns::equals(ns::type_list_v<>, remover_result));
+    ASSERT_EQ(2, ns::unwrap(accumulator_result));
 }
 
-TEST(type_list, remove_if_single_type_no_match)
+TEST(type_list, accumulate_multi_type)
 {
-    constexpr auto remover = int_tag_remover_v<1>;
-    constexpr auto remover_result = ns::remove_if(ns::type_list_v<int_tag<0>>, remover);
+    constexpr auto accumulator = int_tag_accumulator();
+    constexpr auto accumulator_result = ns::accumulate(ns::type_list_v<int_tag<1>, int_tag<2>, int_tag<3>>, ns::type_wrapper_v<int_tag_init>, accumulator);
 
-    ASSERT_TRUE(ns::equals(ns::type_list_v<int_tag<0>>, remover_result));
-}
-
-TEST(type_list, remove_if_multi_types)
-{
-    constexpr auto remover = int_tag_remover_v<2>;
-    constexpr auto remover_result = ns::remove_if(ns::type_list_v<int_tag<0>, int_tag<1>, int_tag<2>>, remover);
-
-    ASSERT_TRUE(ns::equals(ns::type_list_v<int_tag<0>, int_tag<1>>, remover_result));
-}
-
-TEST(type_list, remove_if_multi_types_no_match)
-{
-    constexpr auto remover = int_tag_remover_v<3>;
-    constexpr auto remover_result = ns::remove_if(ns::type_list_v<int_tag<0>, int_tag<1>, int_tag<2>>, remover);
-
-    ASSERT_TRUE(ns::equals(ns::type_list_v<int_tag<0>, int_tag<1>, int_tag<2>>, remover_result));
+    ASSERT_EQ(7, ns::unwrap(accumulator_result));
 }

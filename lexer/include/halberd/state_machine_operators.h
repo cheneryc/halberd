@@ -1,11 +1,15 @@
 #pragma once
 
-#include "state_index.h"
 #include "state_machine.h"
+#include "state_index.h"
+#include "symbol_set.h"
+#include "symbol_set_operators.h"
 
 // halberd::meta
 #include <halberd/meta/dependent.h>
+#include <halberd/meta/static_if.h>
 #include <halberd/meta/type_list.h>
+#include <halberd/meta/type_list_transform.h>
 #include <halberd/meta/type_wrapper.h>
 #include <halberd/meta/value_set.h>
 #include <halberd/meta/value_list.h>
@@ -44,17 +48,6 @@ namespace lexer
             }
         };
 
-        //C++17: investigate if this class can be replaced with a constexpr lambda
-        template<typename TSym, state_index_t IdxRemove>
-        struct fn_remove_transition
-        {
-            template<state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
-            constexpr bool operator()(meta::type_wrapper<state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>>) const noexcept
-            {
-                return IdxTo == IdxRemove; // Filter out transitions to [e, e]
-            }
-        };
-
         template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans, TSym Sym>
         constexpr state_index_t get_transition_index(state<TSym, Idx, B, TTag, Tag, TTrans...>, basic_symbol<TSym, Sym>, state_index_t idx_end) noexcept
         {
@@ -71,6 +64,12 @@ namespace lexer
             return idx;
         }
 
+        template<typename TSym, state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+        constexpr auto make_state_transition(basic_symbol_set<TSym, Symbols...>)
+        {
+            return state_transition_v<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>;
+        }
+
         template<typename TSym, state_index_t Idx, bool B, typename TTag, TTag Tag, typename... TTrans>
         constexpr auto make_state(meta::type_list<TTrans...>) noexcept
         {
@@ -82,6 +81,45 @@ namespace lexer
         {
             return state_machine_v<TSym, IdxStart, TTag, TStates...>;
         }
+
+        template<typename TSym, state_index_t Idx, TSym... SymbolsMerge>
+        struct fn_merge_transform
+        {
+            template<state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+            constexpr auto operator()(meta::type_wrapper<state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>>) const noexcept
+            {
+                constexpr auto symbols = meta::static_if<Idx == IdxTo>(
+                    basic_symbol_set_v<TSym, Symbols...> | basic_symbol_set_v<TSym, SymbolsMerge...>,
+                    basic_symbol_set_v<TSym, Symbols...>);
+
+                return meta::wrap(make_state_transition<TSym, IdxFrom, IdxTo>(symbols));
+            }
+        };
+
+        template<typename TSym, state_index_t Idx>
+        struct fn_merge_accumulate
+        {
+            template<typename... TTrans, state_index_t IdxFrom, state_index_t IdxTo, TSym... Symbols>
+            constexpr auto operator()(meta::type_wrapper<meta::type_list<TTrans...>>, meta::type_wrapper<state_transition<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>>) const noexcept
+            {
+                static_assert(Idx == IdxFrom, "detail::fn_merge_accumulate::operator(): state transition indices must match");
+
+                constexpr auto transition = state_transition_v<TSym, IdxFrom, IdxTo, basic_symbol_set<TSym, Symbols...>>;
+                constexpr auto transitions_merged = meta::type_list_v<TTrans...>;
+                constexpr auto transitions_merged_updated = meta::transform(transitions_merged, fn_merge_transform<TSym, IdxTo, Symbols...>());
+                constexpr auto transitions_merged_appended = meta::append(transitions_merged, meta::wrap(transition));
+
+                // If the type lists are different then this transition's symbols
+                // were merged with an existing transition during the transform
+                constexpr bool is_merged = transitions_merged != transitions_merged_updated;
+
+                constexpr auto result = meta::static_if<is_merged>(
+                    transitions_merged_updated,
+                    transitions_merged_appended);
+
+                return meta::wrap(result);
+            }
+        };
 
         template<typename T1, typename T2>
         struct fn_create_state
@@ -130,12 +168,15 @@ namespace lexer
                 template<TSym Sym>
                 constexpr auto operator()(meta::value_wrapper<TSym, Sym>) const noexcept
                 {
+                    constexpr auto symbol  = basic_symbol_v<TSym, Sym>;
+                    constexpr auto symbols = basic_symbol_set_v<TSym, Sym>;
+
                     constexpr state_index_t idx_from = get_combined_index(Idx1, Idx2);
                     constexpr state_index_t idx_to   = get_combined_index(
-                        get_transition_index(state_v<TSym, Idx1, B1, TTag, Tag1, TTrans1...>, basic_symbol_v<TSym, Sym>, sizeof...(TStates1)),
-                        get_transition_index(state_v<TSym, Idx2, B2, TTag, Tag2, TTrans2...>, basic_symbol_v<TSym, Sym>, sizeof...(TStates2)));
+                        get_transition_index(state_v<TSym, Idx1, B1, TTag, Tag1, TTrans1...>, symbol, sizeof...(TStates1)),
+                        get_transition_index(state_v<TSym, Idx2, B2, TTag, Tag2, TTrans2...>, symbol, sizeof...(TStates2)));
 
-                    return meta::wrap(state_transition_v<TSym, idx_from, idx_to, basic_symbol_set<TSym, Sym>>);
+                    return meta::wrap(make_state_transition<TSym, idx_from, idx_to>(symbols));
                 }
             };
 
@@ -151,18 +192,13 @@ namespace lexer
                 constexpr auto combined_idx = get_combined_index(Idx1, Idx2);
                 constexpr auto combined_tag = get_combined_tag(B1, Tag1, B2, Tag2);
 
-                using fn_transform = fn_create_state_transition<
+                using fn_transform_states = fn_create_state_transition<
                     state<TSym, Idx1, B1, TTag, Tag1, TTrans1...>,
                     state<TSym, Idx2, B2, TTag, Tag2, TTrans2...>>;
 
-                using fn_filter = fn_remove_transition<TSym, get_combined_index(sizeof...(TStates1), sizeof...(TStates2))>;
-
-                constexpr auto state_transition_list = meta::transform(meta::set_to_list(state_alphabet), fn_transform());
-                constexpr auto state_transition_list_filtered = meta::remove_if(state_transition_list, fn_filter());
-
-                //TODO: merge transitions that go to the same 'to' state (currently each symbol results in a separate transition)
-
-                constexpr auto state = make_state<TSym, combined_idx, B1 || B2, TTag, combined_tag>(state_transition_list_filtered);
+                constexpr auto state_transition_list = meta::transform(meta::set_to_list(state_alphabet), fn_transform_states());
+                constexpr auto state_transition_list_merged = meta::unwrap(meta::accumulate(state_transition_list, meta::wrap(meta::type_list_v<>), fn_merge_accumulate<TSym, combined_idx>()));
+                constexpr auto state = make_state<TSym, combined_idx, B1 || B2, TTag, combined_tag>(state_transition_list_merged);
 
                 return meta::wrap(state);
             }

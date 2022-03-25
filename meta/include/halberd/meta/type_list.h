@@ -1,8 +1,9 @@
 #pragma once
 
 #include "type_wrapper.h"
+#include "static_if.h"
 
-#include <type_traits> // std::integral_constant, std::true_type, std::false_type
+#include <type_traits> // std::is_same
 
 
 namespace halberd
@@ -17,42 +18,7 @@ namespace meta
     template<typename... Ts>
     constexpr type_list<Ts...> type_list_v;
 
-    // Capacity
-
-    template<typename... Ts>
-    constexpr std::size_t size(type_list<Ts...>) noexcept
-    {
-        return sizeof...(Ts);
-    }
-
-    template<typename... Ts>
-    constexpr bool empty(type_list<Ts...>) noexcept
-    {
-        return size(type_list_v<Ts...>) == 0U;
-    }
-
     // Sequence operations
-
-    namespace detail
-    {
-        template<typename TT, typename TF>
-        constexpr auto static_if(std::true_type, TT t, TF f)
-        {
-            return t;
-        }
-
-        template<typename TT, typename TF>
-        constexpr auto static_if(std::false_type, TT t, TF f)
-        {
-            return f;
-        }
-
-        template<bool B, typename TT, typename TF>
-        constexpr auto static_if(TT t, TF f)
-        {
-            return static_if(std::integral_constant<bool, B>(), t, f);
-        }
-    }
 
     template<typename T, typename... Ts, typename TEnd, typename Fn>
     constexpr auto find_if(type_list<T, Ts...>, type_wrapper<TEnd>, Fn fn) noexcept
@@ -60,7 +26,7 @@ namespace meta
         constexpr auto type_wrap = type_wrapper_v<T>;
         constexpr auto type_rec = find_if(type_list_v<Ts...>, type_wrapper_v<TEnd>, fn); //C++17: unfortunately this calls fn for all types in the list regardless of whether a match has been found, if constexpr would allow short circuiting here
 
-        return detail::static_if<fn(type_wrap)>(type_wrap, type_rec);
+        return static_if<fn(type_wrap)>(type_wrap, type_rec);
     }
 
     template<typename TEnd, typename Fn>
@@ -69,19 +35,16 @@ namespace meta
         return type_wrapper_v<TEnd>;
     }
 
-    template<typename T, typename... Ts, typename Fn>
-    constexpr auto remove_if(type_list<T, Ts...>, Fn fn) noexcept
+    template<typename T, typename... Ts, typename TInit, typename Fn>
+    constexpr auto accumulate(type_list<T, Ts...>, type_wrapper<TInit>, Fn fn) noexcept
     {
-        constexpr auto type_wrap = type_wrapper_v<T>;
-        constexpr auto type_rec = remove_if(type_list_v<Ts...>, fn);
-
-        return detail::static_if<fn(type_wrap)>(type_rec, prepend(type_wrap, type_rec));
+        return accumulate(type_list_v<Ts...>, fn(type_wrapper_v<TInit>, type_wrapper_v<T>), fn);
     }
 
-    template<typename Fn>
-    constexpr auto remove_if(type_list<>, Fn fn) noexcept
+    template<typename TInit, typename Fn>
+    constexpr auto accumulate(type_list<>, type_wrapper<TInit>, Fn fn) noexcept
     {
-        return type_list_v<>;
+        return type_wrapper_v<TInit>;
     }
 
     // Variadic operations
@@ -107,9 +70,15 @@ namespace meta
     // Binary operations
 
     template<typename... T1s, typename... T2s>
-    constexpr bool equals(type_list<T1s...>, type_list<T2s...>) noexcept
+    constexpr bool operator==(type_list<T1s...>, type_list<T2s...>) noexcept
     {
         return std::is_same<type_list<T1s...>, type_list<T2s...>>::value;
+    }
+
+    template<typename... T1s, typename... T2s>
+    constexpr bool operator!=(type_list<T1s...>, type_list<T2s...>) noexcept
+    {
+        return !(type_list_v<T1s...> == type_list_v<T2s...>);
     }
 
     template<typename T, typename... Ts>

@@ -1,6 +1,7 @@
 #include <halberd/state_machine_operators.h>
 #include <halberd/state_machine.h>
 #include <halberd/state_machine_array.h>
+#include <halberd/symbol_set.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
